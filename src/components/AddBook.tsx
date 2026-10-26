@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from './Nav';
 import { IconBook, IconConvert, IconPlus } from './Icons';
 import { Popover, Sheet } from './Overlay';
 import { useToast } from './Toast';

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { useBooks, useHighlights, type HighlightColor } from '../api';
 import { IconArrowOut, IconCopy, IconDownload, IconNotes, IconPencil, IconSearch, IconShare } from '../components/Icons';
 import { ServerError, Shell } from '../components/Shell';

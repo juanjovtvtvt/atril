@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '../components/Nav';
 import { api, useBooks, useQuery, useSessions, type Book, type SearchHit } from '../api';
 import { AddBookButton } from '../components/AddBook';
 import { Cover } from '../components/Cover';

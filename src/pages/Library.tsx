@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { useBooks, type Book } from '../api';
 import { AddBookButton } from '../components/AddBook';
 import { Cover } from '../components/Cover';

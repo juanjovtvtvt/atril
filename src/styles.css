@@ -877,6 +877,118 @@ button:disabled {
   animation: rise 300ms var(--ease-out) both;
 }
 
+/* ---------- Reader: page turn ----------
+ * The band of light and shadow that crosses the page like the fold of a leaf while the new page
+ * enters turning (the turn itself is animated in Reader.tsx).
+ */
+.leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  width: 22%;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(60, 40, 20, 0) 0%, rgba(60, 40, 20, 0.1) 36%, rgba(255, 255, 255, 0.45) 50%, rgba(60, 40, 20, 0.16) 60%, rgba(60, 40, 20, 0) 100%);
+}
+.leaf-dark {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 36%, rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0) 100%);
+}
+.leaf-next {
+  animation: leaf-next 520ms cubic-bezier(0.77, 0, 0.175, 1) both;
+}
+.leaf-prev {
+  animation: leaf-prev 520ms cubic-bezier(0.77, 0, 0.175, 1) both;
+}
+@keyframes leaf-next {
+  0% {
+    transform: translateX(460%) scaleX(0.6);
+    opacity: 0;
+  }
+  18%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-110%) scaleX(1.5);
+    opacity: 0;
+  }
+}
+@keyframes leaf-prev {
+  0% {
+    transform: translateX(-110%) scaleX(1.5);
+    opacity: 0;
+  }
+  18%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(460%) scaleX(0.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- Screen transitions (View Transitions API) ----------
+ * Like an iOS navigation stack: going in, the new screen enters from the right over the
+ * previous one, which shifts back with parallax and darkens; going back, the reverse. The tabs
+ * cross-fade. The toolbar is its own layer: it stays put and only its content changes.
+ */
+.toolbar {
+  view-transition-name: toolbar;
+}
+.tabbar {
+  view-transition-name: tabbar;
+}
+::view-transition-old(toolbar),
+::view-transition-new(toolbar),
+::view-transition-old(tabbar),
+::view-transition-new(tabbar) {
+  animation-duration: 220ms;
+}
+:root[data-nav='forward']::view-transition-old(root) {
+  animation: 460ms var(--ease-drawer) both vt-push-out;
+}
+:root[data-nav='forward']::view-transition-new(root) {
+  animation: 460ms var(--ease-drawer) both vt-push-in;
+  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.14);
+}
+:root[data-nav='back']::view-transition-old(root) {
+  z-index: 2;
+  animation: 400ms var(--ease-drawer) both vt-pop-out;
+  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.14);
+}
+:root[data-nav='back']::view-transition-new(root) {
+  z-index: 1;
+  animation: 400ms var(--ease-drawer) both vt-pop-in;
+}
+:root[data-nav='tab']::view-transition-old(root),
+:root[data-nav='tab']::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+@keyframes vt-push-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-push-out {
+  to {
+    transform: translateX(-28%);
+    filter: brightness(0.9);
+  }
+}
+@keyframes vt-pop-in {
+  from {
+    transform: translateX(-28%);
+    filter: brightness(0.9);
+  }
+}
+@keyframes vt-pop-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* ---------- Phone ---------- */
 @media (max-width: 759px) {
   .page {
@@ -965,6 +1077,14 @@ button:disabled {
   }
   .press:active {
     transform: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  .leaf {
+    display: none;
   }
 }
 

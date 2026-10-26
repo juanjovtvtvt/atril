@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { api, invalidate, useBooks, useSessions, useSettings } from '../api';
 import { ServerError, Shell } from '../components/Shell';
 import { formatMinutes, formatNumber, relativeDay, timeOfDay } from '../lib/format';

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from './Nav';
 import { useBooks, useHighlights } from '../api';
 import { useEpubImport } from './AddBook';
 import { IconBack, IconBook, IconConvert, IconHome, IconLibrary, IconNotes, IconSidebar } from './Icons';
@@ -62,7 +62,7 @@ export function Shell({ back, actions, children }: { back?: { to: string; label:
       <header className="toolbar">
         <div className="toolbar-group">
           {back ? (
-            <Link to={back.to} className="btn-ghost press" style={{ paddingLeft: 4, gap: 2 }}>
+            <Link to={back.to} data-nav="back" className="btn-ghost press" style={{ paddingLeft: 4, gap: 2 }}>
               <IconBack size={20} />
               {back.label}
             </Link>
@@ -88,7 +88,7 @@ export function Shell({ back, actions, children }: { back?: { to: string; label:
           Secciones
         </div>
         {sections.map(({ to, label, Icon, tint }) => (
-          <NavLink key={to} to={to} className="panel-link press" tabIndex={panel ? 0 : -1} onClick={() => setPanel(false)}>
+          <NavLink key={to} to={to} data-nav="tab" className="panel-link press" tabIndex={panel ? 0 : -1} onClick={() => setPanel(false)}>
             <Icon size={20} style={{ color: tint }} />
             <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
             <span className="small muted num">{counts[to] ?? ''}</span>
@@ -101,7 +101,7 @@ export function Shell({ back, actions, children }: { back?: { to: string; label:
 
       <nav className="tabbar" aria-label="Secciones">
         {tabs.map(({ to, label, Icon }) => (
-          <NavLink key={to} to={to} end={to === '/'} className="tab" aria-current={location.pathname === to ? 'page' : undefined}>
+          <NavLink key={to} to={to} end={to === '/'} data-nav="tab" className="tab" aria-current={location.pathname === to ? 'page' : undefined}>
             <Icon size={25} />
             {label}
           </NavLink>

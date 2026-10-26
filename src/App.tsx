@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { createHashRouter, Outlet, RouterProvider, ScrollRestoration } from 'react-router-dom';
+import { useNavDirection } from './components/Nav';
 import { ToastProvider } from './components/Toast';
 import BookPage from './pages/BookPage';
 import History from './pages/History';
@@ -7,28 +7,41 @@ import Home from './pages/Home';
 import Library from './pages/Library';
 import Notes from './pages/Notes';
 
-// pdf.js and epub.js weigh about 1 MB: they only load when the converter or reader opens.
-const Converter = lazy(() => import('./pages/Converter'));
-const Reader = lazy(() => import('./pages/Reader'));
+function Root() {
+  useNavDirection();
+  return (
+    <>
+      <ScrollRestoration />
+      <Outlet />
+    </>
+  );
+}
 
-// HashRouter: the build works from any folder or static server without extra configuration.
+/*
+ * Data router: required for the View Transitions on every navigation. The converter and the
+ * reader (pdf.js and epub.js, about 1 MB) load on demand; the router waits for them before
+ * animating, so the new screen never enters empty.
+ */
+const router = createHashRouter([
+  {
+    element: <Root />,
+    children: [
+      { path: '/', element: <Home /> },
+      { path: '/biblioteca', element: <Library /> },
+      { path: '/libro/:id', element: <BookPage /> },
+      { path: '/leer/:id', lazy: async () => ({ Component: (await import('./pages/Reader')).default }) },
+      { path: '/convertir', lazy: async () => ({ Component: (await import('./pages/Converter')).default }) },
+      { path: '/historial', element: <History /> },
+      { path: '/notas', element: <Notes /> },
+      { path: '*', element: <Home /> },
+    ],
+  },
+]);
+
 export default function App() {
   return (
-    <HashRouter>
-      <ToastProvider>
-        <Suspense fallback={null}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/biblioteca" element={<Library />} />
-            <Route path="/libro/:id" element={<BookPage />} />
-            <Route path="/leer/:id" element={<Reader />} />
-            <Route path="/convertir" element={<Converter />} />
-            <Route path="/historial" element={<History />} />
-            <Route path="/notas" element={<Notes />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </Suspense>
-      </ToastProvider>
-    </HashRouter>
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
   );
 }

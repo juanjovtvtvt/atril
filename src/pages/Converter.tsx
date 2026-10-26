@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from '../components/Nav';
 import { useBooks } from '../api';
 import { IconChevron, IconFile, IconUpload } from '../components/Icons';
 import { ServerError, Shell } from '../components/Shell';

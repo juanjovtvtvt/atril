@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from '../components/Nav';
 import { api, invalidate, useHighlights, useQuery, useSessions } from '../api';
 import { Cover } from '../components/Cover';
 import { IconChart, IconChevron, IconCopy, IconDownload, IconFile, IconImage, IconNotes, IconTrash } from '../components/Icons';

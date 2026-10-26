@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Biblioteca</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F7F2EA}
+a{color:#A8261B}a:hover{color:#7E1D14}
+input::placeholder{color:#8A7B6E}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.cover{transition:transform 220ms cubic-bezier(.23,1,.32,1), box-shadow 220ms cubic-bezier(.23,1,.32,1)}
+.seg{transition:background-color 200ms ease, box-shadow 200ms ease}
+.panel{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s linear 360ms}
+.panel[data-open="true"]{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s}
+@media (hover:hover) and (pointer:fine){
+.row:hover{background:rgba(118,96,72,.07)}
+.ghost:hover{background:rgba(118,96,72,.1)}
+.book:hover .cover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(43,33,25,.18),0 16px 28px rgba(43,33,25,.22)}
+}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;animation-delay:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 1000px; background: #F7F2EA; color: #2B2119; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; background: rgba(247,242,234,0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<a href="Main.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px 0 4px; border-radius: 8px; font-size: 15px; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>Inicio</a>
+<div style="display: flex; align-items: center; gap: 4px">
+<a href="Convertidor.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; color: #A8261B; text-decoration: none; font-size: 14px; font-weight: 600">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Agregar libro</a>
+<button type="button" class="press ghost" aria-label="Mostrar secciones" aria-pressed="{{panel}}" onClick="{{togglePanel}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: {{panelBtnBg}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"></rect><path d="M15 4.5v15"></path><path d="M17.5 8.5h1M17.5 11h1" stroke-linecap="round"></path></svg>
+</button>
+</div>
+</header>
+
+<main style="max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 12px 32px 56px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 12px 0 18px">
+<div>
+<h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em">Biblioteca</h1>
+<div style="margin-top: 2px; font-size: 15px; color: #6B5F55; font-variant-numeric: tabular-nums">{{summary}}</div>
+</div>
+<div role="search" style="flex: 0 1 320px; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border-radius: 10px; background: rgba(118,96,72,0.12)">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B5F55" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input type="search" aria-label="Buscar en la biblioteca" placeholder="Buscar en la biblioteca" style="flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 15px; color: #2B2119">
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 0.5px solid rgba(43,33,25,0.14)">
+<div role="group" aria-label="Filtrar" style="display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: rgba(118,96,72,0.12)">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="5">
+<button type="button" class="seg" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="height: 30px; padding: 0 12px; border: 0; border-radius: 7px; background: {{f.bg}}; box-shadow: {{f.shadow}}; color: #2B2119; font: inherit; font-size: 13px; font-weight: {{f.weight}}; white-space: nowrap; cursor: pointer">{{f.label}} <span style="color: #6B5F55; font-weight: 400; font-variant-numeric: tabular-nums">{{f.count}}</span></button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="position: relative">
+<button type="button" class="press ghost" aria-haspopup="menu" aria-expanded="{{sortOpen}}" onClick="{{toggleSort}}" style="display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #2B2119; font: inherit; font-size: 13px; cursor: pointer">
+<span style="color: #6B5F55">Ordenar:</span> <span style="font-weight: 600">{{sortLabel}}</span>
+<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></button>
+<sc-if value="{{sortOpen}}" hint-placeholder-val="{{false}}">
+<button type="button" aria-label="Cerrar menú" onClick="{{toggleSort}}" style="position: fixed; inset: 0; z-index: 29; border: 0; padding: 0; background: transparent; cursor: default"></button>
+<div role="menu" aria-label="Ordenar" style="position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; width: 200px; box-sizing: border-box; padding: 5px; border-radius: 12px; background: rgba(255,252,247,0.9); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 12px 32px rgba(43,33,25,0.18); transform-origin: top right; animation: pop 180ms cubic-bezier(.23,1,.32,1) both">
+<sc-for list="{{sorts}}" as="so" hint-placeholder-count="4">
+<button type="button" role="menuitemradio" aria-checked="{{so.on}}" onClick="{{so.pick}}" class="row" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; padding: 0 10px 0 8px; border: 0; border-radius: 7px; background: transparent; color: #2B2119; font: inherit; font-size: 14px; text-align: left; cursor: pointer">
+<span style="width: 14px; display: flex; color: #A8261B"><sc-if value="{{so.on}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if></span>{{so.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+<div role="group" aria-label="Vista" style="display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: rgba(118,96,72,0.12)">
+<button type="button" class="seg" aria-label="Cuadrícula" aria-pressed="{{isGrid}}" onClick="{{showGrid}}" style="width: 34px; height: 28px; border: 0; border-radius: 7px; background: {{gridBg}}; box-shadow: {{gridShadow}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg></button>
+<button type="button" class="seg" aria-label="Lista" aria-pressed="{{isList}}" onClick="{{showList}}" style="width: 34px; height: 28px; border: 0; border-radius: 7px; background: {{listBg}}; box-shadow: {{listShadow}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"></path><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"></path></svg></button>
+</div>
+</div>
+</div>
+
+<sc-if value="{{isGrid}}" hint-placeholder-val="{{true}}">
+<div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 26px 20px">
+<sc-for list="{{shown}}" as="b" hint-placeholder-count="12">
+<a href="Ficha.dc.html" class="book press" style="display: flex; flex-direction: column; gap: 6px; min-width: 0; color: #2B2119; text-decoration: none; animation: rise 280ms cubic-bezier(.23,1,.32,1) {{b.delay}}ms both">
+<span class="cover" style="aspect-ratio: 2 / 3; position: relative; overflow: hidden; box-sizing: border-box; padding: 12px 9px 12px 15px; border-radius: 3px 6px 6px 3px; background: {{b.bg}}; color: #F4E9D6; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 2px rgba(43,33,25,0.16), 0 8px 18px rgba(43,33,25,0.16)">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: rgba(0,0,0,0.22)"></span>
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.12)"></span>
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 15px; font-weight: 600; line-height: 1.15">{{b.title}}</span>
+<span style="font-size: 8px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8">{{b.short}}</span>
+</span>
+<span style="font-size: 14px; font-weight: 600; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.title}}</span>
+<span style="display: flex; align-items: center; gap: 6px; margin-top: -3px; font-size: 13px; color: {{b.statusColor}}; font-variant-numeric: tabular-nums">
+<sc-if value="{{b.reading}}" hint-placeholder-val="{{true}}"><span style="width: 36px; height: 3px; border-radius: 2px; background: rgba(118,96,72,0.18); overflow: hidden"><span style="display: block; width: {{b.pct}}%; height: 100%; background: #A8261B"></span></span></sc-if>{{b.status}}</span>
+</a>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+<div role="table" aria-label="Libros" style="margin-top: 16px; border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1); overflow-x: auto">
+<div role="row" style="display: grid; grid-template-columns: minmax(240px, 3fr) minmax(140px, 1.3fr) 76px minmax(120px, 1fr); gap: 16px; padding: 10px 16px; min-width: 640px; font-size: 12px; font-weight: 600; color: #6B5F55; border-bottom: 0.5px solid rgba(43,33,25,0.14)">
+<span role="columnheader">Título</span><span role="columnheader">Progreso</span><span role="columnheader">Origen</span><span role="columnheader">Última lectura</span>
+</div>
+<sc-for list="{{shown}}" as="b" hint-placeholder-count="12">
+<a href="Ficha.dc.html" role="row" class="row" style="display: grid; grid-template-columns: minmax(240px, 3fr) minmax(140px, 1.3fr) 76px minmax(120px, 1fr); gap: 16px; align-items: center; min-width: 640px; padding: 8px 16px; color: #2B2119; text-decoration: none; border-bottom: {{b.sep}}">
+<span role="cell" style="display: flex; align-items: center; gap: 12px; min-width: 0">
+<span style="width: 30px; height: 45px; flex: 0 0 auto; border-radius: 2px 3px 3px 2px; background: {{b.bg}}; box-shadow: inset 3px 0 0 rgba(0,0,0,0.2), 0 1px 3px rgba(43,33,25,0.2)"></span>
+<span style="min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.title}}</span>
+<span style="font-size: 13px; color: #6B5F55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.author}}</span>
+</span>
+</span>
+<span role="cell" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: {{b.statusColor}}; font-variant-numeric: tabular-nums">
+<span style="flex: 1; max-width: 90px; height: 4px; border-radius: 2px; background: rgba(118,96,72,0.18); overflow: hidden"><span style="display: block; width: {{b.pct}}%; height: 100%; background: {{b.barColor}}"></span></span>{{b.status}}</span>
+<span role="cell" style="font-size: 13px; color: #6B5F55">{{b.origin}}</span>
+<span role="cell" style="font-size: 13px; color: #6B5F55">{{b.last}}</span>
+</a>
+</sc-for>
+</div>
+</sc-if>
+</main>
+
+<aside class="panel" data-open="{{panel}}" aria-label="Secciones" aria-hidden="{{panelHidden}}" style="position: fixed; top: 60px; right: 12px; bottom: 12px; z-index: 20; width: 280px; box-sizing: border-box; padding: 14px 10px; border-radius: 18px; background: rgba(252,248,241,0.8); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 20px 50px rgba(43,33,25,0.2); transform: {{panelT}}; visibility: {{panelV}}; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 0 10px 8px; font-size: 13px; font-weight: 600; color: #6B5F55">Secciones</div>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="3">
+<a href="{{s.href}}" class="row press" aria-current="{{s.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 10px; border-radius: 10px; background: {{s.bg}}; color: #2B2119; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{s.tint}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{s.icon}}"></path></svg>
+<span style="flex: 1; font-size: 15px; font-weight: 500">{{s.label}}</span>
+<span style="font-size: 13px; color: #6B5F55">{{s.count}}</span>
+</a>
+</sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'todos', sort: 'recientes', view: 'grid', sortOpen: false, panel: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const hair = '0.5px solid rgba(43,33,25,0.12)';
+    const books = [
+      { title: 'Don Quijote de la Mancha', author: 'Miguel de Cervantes', short: 'Cervantes', bg: '#4B2716', pct: 18, group: 'leyendo', origin: 'PDF', last: 'Hoy', rank: 1 },
+      { title: 'Redes · Unidad 3', author: 'apuntes-redes-2026.pdf', short: 'Apuntes', bg: '#A8261B', pct: 12, group: 'leyendo', origin: 'PDF', last: 'Ayer', rank: 2 },
+      { title: 'El olvido que seremos', author: 'Héctor Abad Faciolince', short: 'Abad Faciolince', bg: '#6E6B3E', pct: 42, group: 'leyendo', origin: 'EPUB', last: 'Viernes', rank: 3 },
+      { title: 'Guía ESP8266 + MAX30102', author: 'guia-esp8266-max30102.pdf', short: 'Apuntes', bg: '#B88A52', pct: 55, group: 'leyendo', origin: 'PDF', last: 'Hace 1 semana', rank: 4 },
+      { title: 'La vorágine', author: 'José Eustasio Rivera', short: 'J. E. Rivera', bg: '#8C5A2E', pct: 63, group: 'leyendo', origin: 'EPUB', last: 'Hace 2 semanas', rank: 5 },
+      { title: 'Designing Data-Intensive Applications', author: 'Martin Kleppmann', short: 'Kleppmann', bg: '#2B2119', pct: 27, group: 'leyendo', origin: 'PDF', last: 'Hace 3 semanas', rank: 6 },
+      { title: 'Algoritmos · Parcial 2', author: 'algoritmos-parcial-2.pdf', short: 'Apuntes', bg: '#5C5A33', pct: 0, group: 'porleer', origin: 'PDF', last: 'Sin abrir', rank: 7 },
+      { title: 'Cien años de soledad', author: 'Gabriel García Márquez', short: 'García Márquez', bg: '#C07A2C', pct: 0, group: 'porleer', origin: 'EPUB', last: 'Sin abrir', rank: 8 },
+      { title: 'María', author: 'Jorge Isaacs', short: 'Jorge Isaacs', bg: '#A8261B', pct: 100, group: 'leidos', origin: 'EPUB', last: 'Octubre', rank: 9 },
+      { title: 'Pedro Páramo', author: 'Juan Rulfo', short: 'Juan Rulfo', bg: '#6E6B3E', pct: 100, group: 'leidos', origin: 'EPUB', last: 'Septiembre', rank: 10 },
+      { title: 'Ficciones', author: 'Jorge Luis Borges', short: 'Borges', bg: '#4B2716', pct: 100, group: 'leidos', origin: 'EPUB', last: 'Agosto', rank: 11 },
+      { title: 'El túnel', author: 'Ernesto Sabato', short: 'Sabato', bg: '#8C5A2E', pct: 100, group: 'leidos', origin: 'PDF', last: 'Julio', rank: 12 }
+    ];
+    const defs = [
+      { id: 'todos', label: 'Todos', test: () => true },
+      { id: 'leyendo', label: 'Leyendo', test: (b) => b.group === 'leyendo' },
+      { id: 'porleer', label: 'Por leer', test: (b) => b.group === 'porleer' },
+      { id: 'leidos', label: 'Leídos', test: (b) => b.group === 'leidos' },
+      { id: 'pdf', label: 'De PDF', test: (b) => b.origin === 'PDF' }
+    ];
+    const seg = (on) => ({ bg: on ? '#FFFCF7' : 'transparent', shadow: on ? '0 1px 3px rgba(43,33,25,0.14), 0 0 0 0.5px rgba(43,33,25,0.06)' : 'none', weight: on ? 600 : 500 });
+    const filters = defs.map((f) => ({ ...f, count: books.filter(f.test).length, on: s.filter === f.id, ...seg(s.filter === f.id), pick: () => this.setState({ filter: f.id }) }));
+    const sortDefs = [
+      { id: 'recientes', label: 'Recientes', cmp: (a, b) => a.rank - b.rank },
+      { id: 'titulo', label: 'Título', cmp: (a, b) => a.title.localeCompare(b.title, 'es') },
+      { id: 'autor', label: 'Autor', cmp: (a, b) => a.author.localeCompare(b.author, 'es') },
+      { id: 'progreso', label: 'Progreso', cmp: (a, b) => b.pct - a.pct }
+    ];
+    const sortDef = sortDefs.find((x) => x.id === s.sort);
+    const active = defs.find((f) => f.id === s.filter);
+    const list = books.filter(active.test).sort(sortDef.cmp);
+    const shown = list.map((b, i) => ({
+      ...b,
+      delay: i * 30,
+      reading: b.group === 'leyendo',
+      status: b.group === 'leidos' ? 'Leído' : (b.group === 'porleer' ? 'Sin empezar' : b.pct + ' %'),
+      statusColor: b.group === 'porleer' ? '#6B5F55' : (b.group === 'leidos' ? '#3E3C1E' : '#6B5F55'),
+      barColor: b.group === 'leidos' ? '#6E6B3E' : '#A8261B',
+      sep: i === list.length - 1 ? '0' : hair
+    }));
+    const reading = books.filter((b) => b.group === 'leyendo').length;
+    return {
+      summary: books.length + ' libros · ' + reading + ' en curso · 1,2 GB en este equipo',
+      filters,
+      sorts: sortDefs.map((x) => ({ ...x, on: s.sort === x.id, pick: () => this.setState({ sort: x.id, sortOpen: false }) })),
+      sortLabel: sortDef.label,
+      sortOpen: s.sortOpen,
+      toggleSort: () => this.setState({ sortOpen: !s.sortOpen }),
+      isGrid: s.view === 'grid',
+      isList: s.view === 'list',
+      gridBg: seg(s.view === 'grid').bg, gridShadow: seg(s.view === 'grid').shadow,
+      listBg: seg(s.view === 'list').bg, listShadow: seg(s.view === 'list').shadow,
+      showGrid: () => this.setState({ view: 'grid' }),
+      showList: () => this.setState({ view: 'list' }),
+      shown,
+      sections: [
+        { href: 'Biblioteca-PC.dc.html', label: 'Biblioteca', count: '12', tint: '#6E6B3E', icon: 'M3 20h18 M5 20V6h3v14 M9.5 20V4h3v16 M14 20l-1-13 3-.6 2 13.4', bg: 'rgba(118,96,72,0.12)', current: 'page' },
+        { href: 'Convertidor.dc.html', label: 'Convertidor', count: '', tint: '#A8261B', icon: 'M4 8h13l-3-3 M20 16H7l3 3', bg: 'transparent', current: 'false' },
+        { href: 'Notas-PC.dc.html', label: 'Notas', count: '14', tint: '#C07A2C', icon: 'M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4', bg: 'transparent', current: 'false' }
+      ],
+      panel: s.panel,
+      panelHidden: !s.panel,
+      panelT: s.panel ? 'none' : 'translateX(calc(100% + 24px))',
+      panelV: s.panel ? 'visible' : 'hidden',
+      panelBtnBg: s.panel ? 'rgba(118,96,72,0.14)' : 'transparent',
+      togglePanel: () => this.setState({ panel: !s.panel })
+    };
+  }
+}
+</script>
+</body>
+</html>

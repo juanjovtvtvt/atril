@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Inicio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F7F2EA}
+a{color:#A8261B}a:hover{color:#7E1D14}
+input::placeholder{color:#8A7B6E}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.cover{transition:transform 220ms cubic-bezier(.23,1,.32,1), box-shadow 220ms cubic-bezier(.23,1,.32,1)}
+.panel{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s linear 360ms}
+.panel[data-open="true"]{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s}
+@media (hover:hover) and (pointer:fine){
+.widget:hover{box-shadow:0 1px 2px rgba(43,33,25,.06),0 10px 24px rgba(43,33,25,.08)}
+.row:hover{background:rgba(118,96,72,.08)}
+.ghost:hover{background:rgba(118,96,72,.1)}
+.book:hover .cover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(43,33,25,.18),0 16px 28px rgba(43,33,25,.22)}
+}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes scrim{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes numeral{from{opacity:0;transform:scale(.9);filter:blur(14px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes relic{from{opacity:0;transform:translateY(18px) scale(.96);filter:blur(8px)}to{opacity:.5;transform:none;filter:blur(0)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;animation-delay:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 860px; background: #F7F2EA; color: #2B2119; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; background: rgba(247,242,234,0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A8261B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h6a3 3 0 0 1 3 3V20a2 2 0 0 0-2-2H3z"></path><path d="M21 5.5h-6a3 3 0 0 0-3 3V20a2 2 0 0 1 2-2h7z"></path></svg>Atril</span>
+<div style="display: flex; align-items: center; gap: 4px">
+<div style="position: relative">
+<button type="button" class="press ghost" aria-haspopup="menu" aria-expanded="{{isAgregar}}" onClick="{{openAgregar}}" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #A8261B; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Agregar libro</button>
+<sc-if value="{{isAgregar}}" hint-placeholder-val="{{false}}">
+<button type="button" aria-label="Cerrar menú" onClick="{{close}}" style="position: fixed; inset: 0; z-index: 29; border: 0; padding: 0; background: transparent; cursor: default"></button>
+<div role="menu" aria-label="Agregar libro" style="position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; width: 272px; box-sizing: border-box; padding: 6px; border-radius: 14px; background: rgba(255,252,247,0.86); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 12px 32px rgba(43,33,25,0.18); transform-origin: top right; animation: pop 180ms cubic-bezier(.23,1,.32,1) both">
+<label role="menuitem" class="row" style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 10px; border-radius: 9px; cursor: pointer">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6E6B3E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg>
+<span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Importar EPUB…</span><span style="font-size: 12px; color: #6B5F55">Ya está listo para leer</span></span>
+<input type="file" accept=".epub,application/epub+zip" aria-label="Elegir archivo EPUB" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+</label>
+<a href="Convertidor.dc.html" role="menuitem" class="row" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 10px; border-radius: 9px; color: #2B2119; text-decoration: none">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A8261B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3"></path><path d="M20 16H7l3 3"></path></svg>
+<span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">Convertir un PDF…</span><span style="font-size: 12px; color: #6B5F55">Lo pasamos a EPUB primero</span></span>
+</a>
+<div style="height: 1px; margin: 6px 10px; background: rgba(43,33,25,0.1)"></div>
+<div style="padding: 4px 10px 6px; font-size: 12px; color: #6B5F55">También puedes soltar el archivo en la ventana.</div>
+</div>
+</sc-if>
+</div>
+<button type="button" class="press ghost" aria-label="Mostrar secciones" aria-pressed="{{panel}}" onClick="{{togglePanel}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: {{panelBtnBg}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"></rect><path d="M15 4.5v15"></path><path d="M17.5 8.5h1M17.5 11h1" stroke-linecap="round"></path></svg>
+</button>
+</div>
+</header>
+
+<main style="max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 12px 32px 48px">
+
+<h1 id="buscar-titulo" style="margin: 12px 0 14px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em">Encuentra tu libro</h1>
+<div role="search" style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px; border-radius: 12px; background: rgba(118,96,72,0.12)">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B5F55" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input type="search" aria-labelledby="buscar-titulo" placeholder="Título, autor o una frase que recuerdes" style="flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 17px; color: #2B2119">
+<kbd style="padding: 2px 6px; border-radius: 5px; background: rgba(255,255,255,0.7); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.15); font-family: inherit; font-size: 12px; color: #6B5F55">Ctrl K</kbd>
+</div>
+
+<section aria-label="Tu lectura" style="margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px">
+<a href="Historial.dc.html" class="widget press" style="display: flex; flex-direction: column; gap: 2px; min-height: 132px; box-sizing: border-box; padding: 14px 16px 16px; border-radius: 18px; background: #E5E5CF; color: #3E3C1E; text-decoration: none">
+<span style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600"><span>Esta semana</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"><path d="m9 5 7 7-7 7"></path></svg></span>
+<span style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">4 h 12 min</span>
+<span aria-hidden="true" style="margin-top: auto; display: flex; align-items: flex-end; gap: 5px; height: 30px">
+<sc-for list="{{week}}" as="d" hint-placeholder-count="7"><span style="width: 6px; height: {{d.h}}px; border-radius: 3px; background: currentColor; opacity: {{d.o}}"></span></sc-for>
+</span>
+</a>
+<button type="button" class="widget press" onClick="{{openRacha}}" style="display: flex; flex-direction: column; gap: 2px; min-height: 132px; box-sizing: border-box; padding: 14px 16px 16px; border: 0; border-radius: 18px; background: #F6E3C6; color: #6A3A0B; font: inherit; text-align: left; cursor: pointer">
+<span style="display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 13px; font-weight: 600"><span>Racha</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.75"><path d="M12 2.5c1.2 4.2 5.5 5.8 5.5 10.6A5.5 5.5 0 0 1 6.5 13c0-2.6 1.4-4.2 2.6-5.3.4 2 1.4 3.1 2.6 3.1-.1-3.1-.9-5.6.3-8.3z"></path></svg></span>
+<span style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{streak}} días</span>
+<span aria-hidden="true" style="margin-top: auto; display: flex; gap: 6px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="7"><span style="display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; opacity: 0.8"><span style="width: 14px; height: 14px; border-radius: 7px; background: currentColor; box-shadow: {{d.ring}}"></span>{{d.l}}</span></sc-for>
+</span>
+</button>
+<div style="position: relative; display: flex">
+<button type="button" class="widget press" aria-expanded="{{isPpm}}" onClick="{{openPpm}}" style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-height: 132px; box-sizing: border-box; padding: 14px 16px 16px; border: 0; border-radius: 18px; background: #F4DCD5; color: #6F1C13; font: inherit; text-align: left; cursor: pointer">
+<span style="display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 13px; font-weight: 600"><span>Palabras por minuto</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"></path></svg></span>
+<span style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{ppmAvg}}</span>
+<span style="margin-top: auto; font-size: 13px; opacity: 0.85">Promedio de 5 libros</span>
+</button>
+<sc-if value="{{isPpm}}" hint-placeholder-val="{{false}}">
+<button type="button" aria-label="Cerrar" onClick="{{close}}" style="position: fixed; inset: 0; z-index: 29; border: 0; padding: 0; background: transparent; cursor: default"></button>
+<div role="dialog" aria-labelledby="ppm-titulo" style="position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; width: 320px; box-sizing: border-box; padding: 14px 16px 16px; border-radius: 16px; background: rgba(255,252,247,0.9); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 14px 36px rgba(43,33,25,0.2); transform-origin: top left; animation: pop 200ms cubic-bezier(.23,1,.32,1) both">
+<div id="ppm-titulo" style="font-size: 15px; font-weight: 600">Cómo se calcula</div>
+<div style="font-size: 13px; color: #6B5F55; margin-bottom: 8px">Palabras leídas ÷ minutos leídos, en cada libro.</div>
+<sc-for list="{{ppmRows}}" as="p" hint-placeholder-count="5">
+<div style="display: flex; align-items: baseline; gap: 12px; padding: 7px 0; border-bottom: 0.5px solid rgba(43,33,25,0.14); font-size: 14px">
+<span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{p.title}}</span>
+<span style="font-variant-numeric: tabular-nums; color: #6B5F55">{{p.v}}</span>
+</div>
+</sc-for>
+<div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 10px">
+<span style="font-size: 14px; font-weight: 600">Promedio</span>
+<span style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #A8261B; font-variant-numeric: tabular-nums">{{ppmAvg}} ppm</span>
+</div>
+</div>
+</sc-if>
+</div>
+<button type="button" class="widget press" onClick="{{openLeidos}}" style="display: flex; flex-direction: column; gap: 2px; min-height: 132px; box-sizing: border-box; padding: 14px 16px 16px; border: 0; border-radius: 18px; background: #EFE3D0; color: #4B2716; font: inherit; text-align: left; cursor: pointer">
+<span style="display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 13px; font-weight: 600"><span>Libros leídos</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"><path d="m9 5 7 7-7 7"></path></svg></span>
+<span style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{readCount}} libros</span>
+<span aria-hidden="true" style="margin-top: auto; display: flex; align-items: flex-end; gap: 2px; height: 30px">
+<sc-for list="{{spines}}" as="sp" hint-placeholder-count="7"><span style="width: {{sp.w}}px; height: {{sp.h}}px; border-radius: 1.5px; background: {{sp.c}}"></span></sc-for>
+</span>
+</button>
+</section>
+
+<section aria-labelledby="seguir-titulo" style="margin-top: 36px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px">
+<h2 id="seguir-titulo" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Seguir leyendo</h2>
+<a href="Biblioteca-PC.dc.html" style="font-size: 15px; text-decoration: none">Ver todo</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px">
+<sc-for list="{{recent}}" as="b" hint-placeholder-count="3">
+<a href="Ficha.dc.html" class="book press" style="display: flex; gap: 16px; color: #2B2119; text-decoration: none; animation: rise 320ms cubic-bezier(.23,1,.32,1) {{b.delay}}ms both">
+<div class="cover" style="flex: 0 0 104px; height: 156px; position: relative; overflow: hidden; box-sizing: border-box; padding: 12px 10px 12px 16px; border-radius: 3px 6px 6px 3px; background: {{b.bg}}; color: #F4E9D6; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 2px rgba(43,33,25,0.16), 0 8px 18px rgba(43,33,25,0.16)">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: rgba(0,0,0,0.22)"></span>
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.12)"></span>
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 15px; font-weight: 600; line-height: 1.15">{{b.title}}</span>
+<span style="font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8">{{b.authorShort}}</span>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 4px 0 2px">
+<span style="font-size: 17px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em">{{b.title}}</span>
+<span style="font-size: 15px; color: #6B5F55">{{b.author}}</span>
+<sc-if value="{{b.converted}}" hint-placeholder-val="{{false}}">
+<span style="display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12px; color: #6B5F55"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4"></path></svg>Convertido de PDF</span>
+</sc-if>
+<span style="margin-top: auto; display: block; height: 4px; border-radius: 2px; background: rgba(118,96,72,0.18); overflow: hidden"><span style="display: block; width: {{b.pct}}%; height: 100%; border-radius: 2px; background: #A8261B"></span></span>
+<span style="margin-top: 6px; font-size: 13px; color: #6B5F55; font-variant-numeric: tabular-nums">{{b.pct}} % · {{b.where}}</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+</main>
+
+<aside class="panel" data-open="{{panel}}" aria-label="Secciones" aria-hidden="{{panelHidden}}" style="position: fixed; top: 60px; right: 12px; bottom: 12px; z-index: 20; width: 280px; box-sizing: border-box; padding: 14px 10px; border-radius: 18px; background: rgba(252,248,241,0.8); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 20px 50px rgba(43,33,25,0.2); transform: {{panelT}}; visibility: {{panelV}}; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 0 10px 8px; font-size: 13px; font-weight: 600; color: #6B5F55">Secciones</div>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="3">
+<a href="{{s.href}}" class="row press" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 10px; border-radius: 10px; color: #2B2119; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{s.tint}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{s.icon}}"></path></svg>
+<span style="flex: 1; font-size: 15px; font-weight: 500">{{s.label}}</span>
+<span style="font-size: 13px; color: #6B5F55; font-variant-numeric: tabular-nums">{{s.count}}</span>
+</a>
+</sc-for>
+<div style="margin-top: auto; padding: 10px; font-size: 12px; color: #6B5F55">Guardado en este equipo · 1,2 GB</div>
+</aside>
+
+<sc-if value="{{isLeidos}}" hint-placeholder-val="{{false}}">
+<div role="dialog" aria-labelledby="leidos-titulo" style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px">
+<button type="button" aria-label="Cerrar" onClick="{{close}}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(30,20,12,0.28); cursor: default; animation: scrim 200ms ease-out both"></button>
+<div style="position: relative; width: min(640px, 100%); max-height: 84vh; overflow-y: auto; box-sizing: border-box; padding: 16px 20px 22px; border-radius: 16px; background: #FCF8F1; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.14), 0 24px 60px rgba(30,20,12,0.28); animation: pop 240ms cubic-bezier(.23,1,.32,1) both">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<h2 id="leidos-titulo" style="margin: 0; font-size: 17px; font-weight: 600">Libros leídos <span style="font-weight: 400; color: #6B5F55">· {{readCount}}</span></h2>
+<button type="button" class="press" onClick="{{close}}" style="height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #A8261B; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer">Listo</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 18px 14px">
+<sc-for list="{{read}}" as="b" hint-placeholder-count="7">
+<a href="Ficha.dc.html" class="book press" style="display: flex; flex-direction: column; gap: 6px; color: #2B2119; text-decoration: none; animation: rise 280ms cubic-bezier(.23,1,.32,1) {{b.delay}}ms both">
+<div class="cover" style="aspect-ratio: 2 / 3; position: relative; overflow: hidden; box-sizing: border-box; padding: 10px 8px 10px 13px; border-radius: 3px 5px 5px 3px; background: {{b.bg}}; color: #F4E9D6; box-shadow: 0 1px 2px rgba(43,33,25,0.16), 0 6px 14px rgba(43,33,25,0.14)">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: rgba(0,0,0,0.22)"></span>
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 13px; font-weight: 600; line-height: 1.15">{{b.title}}</span>
+</div>
+<span style="font-size: 13px; font-weight: 600; line-height: 1.25">{{b.title}}</span>
+<span style="font-size: 12px; color: #6B5F55; margin-top: -4px">{{b.when}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isRacha}}" hint-placeholder-val="{{false}}">
+<div role="dialog" aria-label="Tu racha de lectura" style="position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; overflow: hidden">
+<button type="button" aria-label="Cerrar" onClick="{{close}}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(24,15,8,0.78); backdrop-filter: blur(18px) saturate(120%); -webkit-backdrop-filter: blur(18px) saturate(120%); cursor: default; animation: scrim 300ms ease-out both"></button>
+<sc-for list="{{relics}}" as="r" hint-placeholder-count="10">
+<div aria-hidden="true" style="position: absolute; left: {{r.x}}%; top: {{r.y}}%; pointer-events: none; animation: relic 700ms cubic-bezier(.23,1,.32,1) {{r.delay}}ms both">
+<div style="transform: rotate({{r.rot}}deg); display: flex; flex-direction: column; align-items: center; gap: 8px">
+<sc-if value="{{r.isAuthor}}" hint-placeholder-val="{{true}}">
+<div style="width: 96px; height: 120px; border-radius: 50%; background: #D9C3A0; overflow: hidden; color: #4B2716; display: flex; align-items: flex-end; justify-content: center; box-shadow: 0 0 0 2px rgba(244,233,214,0.35), 0 14px 30px rgba(0,0,0,0.45)">
+<sc-if value="{{r.veil}}" hint-placeholder-val="{{false}}">
+<svg width="80" height="96" viewBox="0 0 100 120"><path d="M50 12c-20 0-30 16-30 36v72h60V48c0-20-10-36-30-36z" fill="currentColor" opacity=".45"></path><ellipse cx="52" cy="48" rx="15" ry="19" fill="currentColor"></ellipse><path d="M24 120c2-18 12-28 28-28s26 10 28 28z" fill="currentColor"></path></svg>
+</sc-if>
+<sc-if value="{{r.plain}}" hint-placeholder-val="{{true}}">
+<svg width="80" height="96" viewBox="0 0 100 120"><path d="M44 18c12-6 26 0 27 14 1 6-1 9 2 13l4 6c1 2-1 3-3 3l-1 5c0 3-3 4-5 4-2 4-6 6-12 6l-1 7c-6 0-12-2-16-6-6-6-9-15-9-24 0-13 5-24 14-28z" fill="currentColor"></path><path d="M18 120c2-18 14-30 32-30s30 12 32 30z" fill="currentColor"></path><ellipse cx="50" cy="86" rx="24" ry="6" fill="#D9C3A0" stroke="currentColor" stroke-width="4" stroke-dasharray="3 2"></ellipse></svg>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{r.isBook}}" hint-placeholder-val="{{false}}">
+<div style="width: 78px; height: 112px; position: relative; overflow: hidden; box-sizing: border-box; padding: 10px 7px 10px 12px; border-radius: 2px 5px 5px 2px; background: {{r.color}}; color: #F4E9D6; font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 12px; font-weight: 600; line-height: 1.15; box-shadow: 0 14px 30px rgba(0,0,0,0.5)"><span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: rgba(0,0,0,0.25)"></span>{{r.name}}</div>
+</sc-if>
+<div style="font-size: 12px; font-weight: 600; color: rgba(244,233,214,0.85); text-align: center; line-height: 1.35">{{r.label}}<br><span style="font-weight: 400; color: rgba(244,233,214,0.55); font-variant-numeric: tabular-nums">{{r.years}}</span></div>
+</div>
+</div>
+</sc-for>
+<div style="position: relative; z-index: 2; pointer-events: none; display: flex; flex-direction: column; align-items: center; text-align: center; color: #F4E9D6">
+<div style="font-size: 15px; font-weight: 600; color: rgba(244,233,214,0.7); animation: rise 300ms cubic-bezier(.23,1,.32,1) 120ms both">Racha de lectura</div>
+<div style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 156px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; animation: numeral 620ms cubic-bezier(.23,1,.32,1) 240ms both">{{streakRoman}}</div>
+<div style="font-size: 22px; font-weight: 600; letter-spacing: -0.01em; animation: rise 300ms cubic-bezier(.23,1,.32,1) 820ms both">9 días seguidos</div>
+<div style="margin-top: 4px; font-size: 15px; color: rgba(244,233,214,0.65); animation: rise 300ms cubic-bezier(.23,1,.32,1) 960ms both">Tu mejor racha fue de 14 días</div>
+<div style="margin-top: 28px; font-size: 13px; color: rgba(244,233,214,0.45); animation: rise 300ms ease-out 1200ms both">Toca en cualquier parte para cerrar</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { modal: null, panel: false };
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  roman(n) {
+    const map = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+    let out = '';
+    for (const [v, r] of map) { while (n >= v) { out += r; n -= v; } }
+    return out;
+  }
+  renderVals() {
+    const s = this.state;
+    const open = (m) => () => {
+      clearTimeout(this._t);
+      this.setState({ modal: s.modal === m ? null : m });
+      if (m === 'racha') this._t = setTimeout(() => this.setState({ modal: null }), 4200);
+    };
+    const minutes = [34, 48, 22, 61, 18, 45, 24];
+    const ppmBooks = [
+      { title: 'Don Quijote de la Mancha', v: 212 },
+      { title: 'El olvido que seremos', v: 268 },
+      { title: 'La vorágine', v: 241 },
+      { title: 'Designing Data-Intensive Applications', v: 186 },
+      { title: 'María', v: 283 }
+    ];
+    const ppmAvg = Math.round(ppmBooks.reduce((a, b) => a + b.v, 0) / ppmBooks.length);
+    const read = [
+      { title: 'María', bg: '#A8261B', when: 'Octubre' },
+      { title: 'Pedro Páramo', bg: '#6E6B3E', when: 'Septiembre' },
+      { title: 'Ficciones', bg: '#4B2716', when: 'Agosto' },
+      { title: 'El túnel', bg: '#8C5A2E', when: 'Julio' },
+      { title: 'Crónica de una muerte anunciada', bg: '#C07A2C', when: 'Mayo' },
+      { title: 'El coronel no tiene quien le escriba', bg: '#5C5A33', when: 'Marzo' },
+      { title: 'Clean Code', bg: '#B88A52', when: 'Febrero' }
+    ].map((b, i) => ({ ...b, delay: i * 40 }));
+    const relics = [
+      { k: 'a', label: 'Cervantes', years: '1547 – 1616', x: 7, y: 9, rot: -5 },
+      { k: 'b', name: 'Hamlet', label: 'Shakespeare', years: '1603', color: '#6E6B3E', x: 26, y: 6, rot: 6 },
+      { k: 'b', name: 'El ingenioso hidalgo', label: 'Primera edición', years: '1605', color: '#4B2716', x: 47, y: 3, rot: -2 },
+      { k: 'a', label: 'Shakespeare', years: '1564 – 1616', x: 72, y: 8, rot: 4 },
+      { k: 'b', name: 'Gramática castellana', label: 'Nebrija', years: '1492', color: '#8C5A2E', x: 84, y: 40, rot: -4 },
+      { k: 'a', label: 'Sor Juana', years: '1648 – 1695', veil: true, x: 79, y: 66, rot: -4 },
+      { k: 'b', name: 'Comentarios reales', label: 'Inca Garcilaso', years: '1609', color: '#A8261B', x: 60, y: 75, rot: 5 },
+      { k: 'a', label: 'Quevedo', years: '1580 – 1645', x: 30, y: 73, rot: -3 },
+      { k: 'a', label: 'Inca Garcilaso', years: '1539 – 1616', x: 9, y: 63, rot: 3 },
+      { k: 'b', name: 'Biblia de Gutenberg', label: 'Maguncia', years: '1455', color: '#5C5A33', x: 4, y: 37, rot: 2 }
+    ].map((r, i) => ({ ...r, isAuthor: r.k === 'a', isBook: r.k === 'b', veil: !!r.veil, plain: r.k === 'a' && !r.veil, name: r.name || '', delay: 100 + i * 55 }));
+    return {
+      week: minutes.map((m, i) => ({ h: Math.max(4, Math.round((m / 61) * 30)), o: i === minutes.length - 1 ? 1 : 0.4 })),
+      days: ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((l, i) => ({ l, ring: i === 6 ? '0 0 0 2px #F6E3C6, 0 0 0 3.5px currentColor' : 'none' })),
+      spines: read.map((b, i) => ({ c: b.bg, w: 6 + (i % 3) * 2, h: 20 + ((i * 7) % 11) })),
+      streak: 9,
+      streakRoman: this.roman(9),
+      ppmAvg,
+      ppmRows: ppmBooks,
+      readCount: read.length,
+      read,
+      relics,
+      recent: [
+        { title: 'Don Quijote de la Mancha', author: 'Miguel de Cervantes', authorShort: 'Cervantes', bg: '#4B2716', pct: 18, where: 'Capítulo I, quedan 9 min', delay: 0 },
+        { title: 'El olvido que seremos', author: 'Héctor Abad Faciolince', authorShort: 'Abad Faciolince', bg: '#6E6B3E', pct: 42, where: 'Capítulo 17', delay: 50 },
+        { title: 'Redes · Unidad 3', author: 'apuntes-redes-2026.pdf', authorShort: 'Apuntes', bg: '#A8261B', pct: 12, where: 'Sección 3.2', converted: true, delay: 100 }
+      ],
+      sections: [
+        { href: 'Biblioteca-PC.dc.html', label: 'Biblioteca', count: '12', tint: '#6E6B3E', icon: 'M3 20h18 M5 20V6h3v14 M9.5 20V4h3v16 M14 20l-1-13 3-.6 2 13.4' },
+        { href: 'Convertidor.dc.html', label: 'Convertidor', count: '', tint: '#A8261B', icon: 'M4 8h13l-3-3 M20 16H7l3 3' },
+        { href: 'Notas-PC.dc.html', label: 'Notas', count: '14', tint: '#C07A2C', icon: 'M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4' }
+      ],
+      panel: s.panel,
+      panelHidden: !s.panel,
+      panelT: s.panel ? 'none' : 'translateX(calc(100% + 24px))',
+      panelV: s.panel ? 'visible' : 'hidden',
+      panelBtnBg: s.panel ? 'rgba(118,96,72,0.14)' : 'transparent',
+      togglePanel: () => this.setState({ panel: !s.panel }),
+      isRacha: s.modal === 'racha',
+      isPpm: s.modal === 'ppm',
+      isLeidos: s.modal === 'leidos',
+      isAgregar: s.modal === 'agregar',
+      openRacha: open('racha'),
+      openPpm: open('ppm'),
+      openLeidos: open('leidos'),
+      openAgregar: open('agregar'),
+      close: () => { clearTimeout(this._t); this.setState({ modal: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

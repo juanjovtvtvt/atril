@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Leyendo Don Quijote</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.turn svg{opacity:0;transition:opacity 160ms ease}
+@media (hover:hover) and (pointer:fine){
+.turn:hover svg{opacity:.7}
+.ghost:hover{background:rgba(118,96,72,.12)}
+}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;transition-duration:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 900px; display: flex; flex-direction: column; background: {{t.bg}}; color: {{t.fg}}; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; transition: background-color 300ms ease, color 300ms ease">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: {{t.bar}}; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<div style="flex: 1; min-width: 0">
+<a href="Ficha.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px 0 4px; border-radius: 8px; color: {{t.acc}}; text-decoration: none; font-size: 15px">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>Ficha</a>
+</div>
+<div style="text-align: center; line-height: 1.25">
+<div style="font-size: 13px; font-weight: 600">Don Quijote de la Mancha</div>
+<div style="font-size: 12px; color: {{t.sub}}">Capítulo I</div>
+</div>
+<div style="flex: 1; display: flex; justify-content: flex-end; gap: 2px">
+<button type="button" class="press ghost" aria-label="Índice" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: transparent; color: {{t.fg}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"></path><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2.6"></path></svg></button>
+<button type="button" class="press ghost" aria-label="Buscar en el libro" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: transparent; color: {{t.fg}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button type="button" class="press ghost" aria-label="Marcador" aria-pressed="{{marked}}" onClick="{{toggleMark}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: transparent; color: {{markColor}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="{{markFill}}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6.5 3.5h11v17l-5.5-3.8-5.5 3.8z"></path></svg></button>
+<div style="position: relative">
+<button type="button" class="press ghost" aria-label="Apariencia" aria-expanded="{{pop}}" onClick="{{togglePop}}" style="min-width: 40px; height: 34px; padding: 0 8px; border: 0; border-radius: 8px; background: {{aaBg}}; color: {{t.fg}}; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer">Aa</button>
+<sc-if value="{{pop}}" hint-placeholder-val="{{true}}">
+<button type="button" aria-label="Cerrar apariencia" onClick="{{togglePop}}" style="position: fixed; inset: 0; z-index: 29; border: 0; padding: 0; background: transparent; cursor: default"></button>
+<div role="dialog" aria-label="Apariencia" style="position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; width: 300px; box-sizing: border-box; padding: 14px; border-radius: 16px; background: {{t.pop}}; backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px {{t.line}}, 0 16px 40px rgba(20,12,6,0.22); transform-origin: top right; animation: pop 200ms cubic-bezier(.23,1,.32,1) both; display: flex; flex-direction: column; gap: 14px">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{swatches}}" as="s" hint-placeholder-count="4">
+<button type="button" class="press" aria-pressed="{{s.on}}" onClick="{{s.pick}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: {{t.fg}}; font: inherit; cursor: pointer">
+<span style="width: 44px; height: 44px; border-radius: 22px; background: {{s.bg}}; color: {{s.fg}}; box-shadow: {{s.ring}}; display: flex; align-items: center; justify-content: center; font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 16px; font-weight: 600">Aa</span>
+<span style="font-size: 11px; color: {{s.labelColor}}; font-weight: {{s.weight}}">{{s.name}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 10px; background: {{t.fill}}; overflow: hidden">
+<button type="button" class="press" aria-label="Letra más pequeña" onClick="{{smaller}}" style="height: 40px; border: 0; border-right: 0.5px solid {{t.line}}; background: transparent; color: {{t.fg}}; font-family: ui-serif, 'New York', Charter, Cambria, Georgia, serif; font-size: 14px; cursor: pointer">A</button>
+<button type="button" class="press" aria-label="Letra más grande" onClick="{{bigger}}" style="height: 40px; border: 0; background: transparent; color: {{t.fg}}; font-family: ui-serif, 'New York', Charter, Cambria, Georgia, serif; font-size: 22px; cursor: pointer">A</button>
+</div>
+<div style="border-radius: 10px; background: {{t.fill}}; overflow: hidden">
+<sc-for list="{{fonts}}" as="f" hint-placeholder-count="2">
+<button type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 40px; padding: 0 12px; border: 0; border-bottom: {{f.sep}}; background: transparent; color: {{t.fg}}; font-family: {{f.family}}; font-size: 15px; cursor: pointer">{{f.label}}
+<sc-if value="{{f.on}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{t.acc}}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if>
+</button>
+</sc-for>
+</div>
+<div role="group" aria-label="Diseño" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 2px; border-radius: 9px; background: {{t.fill}}">
+<sc-for list="{{layouts}}" as="l" hint-placeholder-count="2">
+<button type="button" aria-pressed="{{l.on}}" onClick="{{l.pick}}" style="height: 28px; border: 0; border-radius: 7px; background: {{l.bg}}; box-shadow: {{l.shadow}}; color: {{t.fg}}; font: inherit; font-size: 13px; font-weight: {{l.weight}}; cursor: pointer">{{l.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</header>
+
+<div style="flex: 1; display: flex">
+<button type="button" class="turn" aria-label="Página anterior" style="flex: 1 1 80px; max-width: 200px; border: 0; background: transparent; color: {{t.sub}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg></button>
+<article style="flex: 0 1 640px; min-width: 0; padding: 56px 0 96px; font-family: {{family}}">
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 13px; font-weight: 600; color: {{t.sub}}">Capítulo I</div>
+<h1 style="margin: 6px 0 28px; font-size: 28px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">Que trata de la condición y ejercicio del famoso hidalgo don Quijote de la Mancha</h1>
+<p style="margin: 0 0 0.9em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda.</p>
+<p style="margin: 0 0 0.9em; text-indent: 1.4em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">El resto della concluían sayo de velarte, calzas de velludo para las fiestas con sus pantuflos de lo mismo, y los días de entresemana se honraba con su vellorí de lo más fino. Tenía en su casa una ama que pasaba de los cuarenta, y una sobrina que no llegaba a los veinte, y un mozo de campo y plaza, que así ensillaba el rocín como tomaba la podadera.</p>
+<p style="margin: 0 0 0.9em; text-indent: 1.4em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">Frisaba la edad de nuestro hidalgo con los cincuenta años; era de complexión recia, seco de carnes, enjuto de rostro, <mark style="background: {{t.mark}}; color: inherit; border-radius: 3px; padding: 0 2px">gran madrugador y amigo de la caza</mark>. Quieren decir que tenía el sobrenombre de Quijada, o Quesada, que en esto hay alguna diferencia en los autores que deste caso escriben; aunque por conjeturas verosímiles se deja entender que se llamaba Quijana.</p>
+<p style="margin: 0; text-indent: 1.4em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">Pero esto importa poco a nuestro cuento; basta que en la narración dél no se salga un punto de la verdad.</p>
+</article>
+<button type="button" class="turn" aria-label="Página siguiente" style="flex: 1 1 80px; max-width: 200px; border: 0; background: transparent; color: {{t.sub}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg></button>
+</div>
+
+<footer style="position: sticky; bottom: 0; padding: 10px 16px 14px; text-align: center; font-size: 12px; color: {{t.sub}}; font-variant-numeric: tabular-nums; background: {{t.bar}}; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px)">Página 12 de 1.024 · quedan 9 min en el capítulo
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: {{t.line}}"><span style="display: block; width: 18%; height: 100%; background: {{t.acc}}"></span></span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { theme: 'papel', fs: 20, pop: true, font: 'serif', layout: 'pag', marked: false };
+  }
+  renderVals() {
+    const themes = {
+      papel: { name: 'Papel', bg: '#FFFDF8', fg: '#2B2119', sub: '#6B5F55', acc: '#A8261B', bar: 'rgba(255,253,248,0.8)', pop: 'rgba(255,253,248,0.92)', line: 'rgba(43,33,25,0.14)', fill: 'rgba(118,96,72,0.1)', mark: '#F6E3C6' },
+      sepia: { name: 'Sepia', bg: '#F4ECDC', fg: '#3B2F22', sub: '#6B5A45', acc: '#A2400F', bar: 'rgba(244,236,220,0.8)', pop: 'rgba(250,245,234,0.94)', line: 'rgba(59,47,34,0.16)', fill: 'rgba(118,96,72,0.13)', mark: '#EBCB97' },
+      noche: { name: 'Noche', bg: '#1E1915', fg: '#E6DCCB', sub: '#A99C8B', acc: '#E8957A', bar: 'rgba(30,25,21,0.8)', pop: 'rgba(44,37,31,0.94)', line: 'rgba(230,220,203,0.16)', fill: 'rgba(230,220,203,0.1)', mark: '#5A3A1E' },
+      negro: { name: 'Negro', bg: '#000000', fg: '#D6CDBF', sub: '#9C9285', acc: '#E8957A', bar: 'rgba(0,0,0,0.78)', pop: 'rgba(28,24,20,0.94)', line: 'rgba(214,205,191,0.16)', fill: 'rgba(214,205,191,0.1)', mark: '#4A2E14' }
+    };
+    const s = this.state;
+    const t = themes[s.theme];
+    const serif = "ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif";
+    const sans = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif";
+    const fontDefs = [{ id: 'serif', label: 'Con serifa', family: serif }, { id: 'sans', label: 'Sin serifa', family: sans }];
+    const seg = (on) => ({ bg: on ? t.pop : 'transparent', shadow: on ? '0 1px 3px rgba(0,0,0,0.14)' : 'none', weight: on ? 600 : 500 });
+    return {
+      t,
+      fs: s.fs,
+      pop: s.pop,
+      marked: s.marked,
+      markColor: s.marked ? t.acc : t.fg,
+      markFill: s.marked ? 'currentColor' : 'none',
+      aaBg: s.pop ? t.fill : 'transparent',
+      family: s.font === 'serif' ? serif : sans,
+      togglePop: () => this.setState({ pop: !s.pop }),
+      toggleMark: () => this.setState({ marked: !s.marked }),
+      smaller: () => this.setState({ fs: Math.max(15, s.fs - 1) }),
+      bigger: () => this.setState({ fs: Math.min(28, s.fs + 1) }),
+      swatches: Object.keys(themes).map((k) => ({
+        name: themes[k].name, bg: themes[k].bg, fg: themes[k].fg, on: s.theme === k,
+        ring: s.theme === k ? '0 0 0 2px ' + t.pop + ', 0 0 0 4px ' + t.acc : '0 0 0 0.5px ' + t.line,
+        labelColor: s.theme === k ? t.fg : t.sub,
+        weight: s.theme === k ? 600 : 400,
+        pick: () => this.setState({ theme: k })
+      })),
+      fonts: fontDefs.map((f, i) => ({ ...f, on: s.font === f.id, sep: i === 0 ? '0.5px solid ' + t.line : '0', pick: () => this.setState({ font: f.id }) })),
+      layouts: [{ id: 'pag', label: 'Páginas' }, { id: 'scroll', label: 'Continuo' }].map((l) => ({ ...l, on: s.layout === l.id, ...seg(s.layout === l.id), pick: () => this.setState({ layout: l.id }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

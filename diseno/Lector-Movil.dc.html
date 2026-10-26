@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Leyendo en el celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.chrome{transition:opacity 200ms ease, transform 200ms cubic-bezier(.23,1,.32,1)}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;transition-duration:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; background: {{t.bg}}; color: {{t.fg}}; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; transition: background-color 300ms ease, color 300ms ease">
+
+<article style="box-sizing: border-box; height: 844px; padding: 68px 26px 70px; overflow: hidden; font-family: {{family}}">
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 12px; font-weight: 600; color: {{t.sub}}">Capítulo I</div>
+<h1 style="margin: 4px 0 18px; font-size: 21px; line-height: 1.3; font-weight: 600">Que trata de la condición y ejercicio del famoso hidalgo don Quijote de la Mancha</h1>
+<p style="margin: 0 0 0.85em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda.</p>
+<p style="margin: 0 0 0.85em; text-indent: 1.4em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">El resto della concluían sayo de velarte, calzas de velludo para las fiestas con sus pantuflos de lo mismo, y los días de entresemana se honraba con su vellorí de lo más fino.</p>
+<p style="margin: 0; text-indent: 1.4em; font-size: {{fs}}px; line-height: 1.6; text-align: justify; hyphens: auto">Frisaba la edad de nuestro hidalgo con los cincuenta años; era de complexión recia, seco de carnes, enjuto de rostro, <mark style="background: {{t.mark}}; color: inherit; border-radius: 3px; padding: 0 2px">gran madrugador y amigo de la caza</mark>.</p>
+</article>
+
+<div style="position: absolute; inset: 0; display: flex">
+<button type="button" aria-label="Página anterior" style="flex: 0 0 26%; border: 0; background: transparent; cursor: pointer"></button>
+<button type="button" aria-label="Mostrar u ocultar controles" onClick="{{toggleChrome}}" style="flex: 1; border: 0; background: transparent; cursor: pointer"></button>
+<button type="button" aria-label="Página siguiente" style="flex: 0 0 26%; border: 0; background: transparent; cursor: pointer"></button>
+</div>
+
+<header class="chrome" aria-hidden="{{chromeHidden}}" style="position: absolute; left: 0; right: 0; top: 0; height: 52px; box-sizing: border-box; padding: 0 6px; display: flex; align-items: center; gap: 2px; background: {{t.bar}}; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); opacity: {{chromeO}}; transform: {{chromeTop}}; pointer-events: {{chromePE}}">
+<a href="Inicio-Movil.dc.html" class="press" aria-label="Volver" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.acc}}">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg></a>
+<div style="flex: 1; min-width: 0; text-align: center; line-height: 1.25">
+<div style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Don Quijote de la Mancha</div>
+<div style="font-size: 11px; color: {{t.sub}}">Capítulo I</div>
+</div>
+<button type="button" class="press" aria-label="Índice" style="width: 44px; height: 44px; border: 0; background: transparent; color: {{t.fg}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"></path><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2.6"></path></svg></button>
+<button type="button" class="press" aria-label="Apariencia" aria-expanded="{{sheet}}" onClick="{{toggleSheet}}" style="min-width: 44px; height: 44px; border: 0; border-radius: 10px; background: {{aaBg}}; color: {{t.fg}}; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer">Aa</button>
+</header>
+
+<footer class="chrome" aria-hidden="{{bottomHidden}}" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 10px 20px 30px; text-align: center; font-size: 12px; color: {{t.sub}}; font-variant-numeric: tabular-nums; background: {{t.bar}}; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); opacity: {{bottomO}}; transform: {{chromeBottom}}; pointer-events: none">
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 2px; background: {{t.line}}"><span style="display: block; width: 18%; height: 100%; background: {{t.acc}}"></span></span>
+Página 12 de 1.024 · quedan 9 min</footer>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{true}}">
+<div role="dialog" aria-label="Apariencia" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; box-sizing: border-box; padding: 8px 16px 34px; border-radius: 14px 14px 0 0; background: {{t.pop}}; backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 -0.5px 0 {{t.line}}, 0 -12px 40px rgba(20,12,6,0.18); animation: sheet 420ms cubic-bezier(.32,.72,0,1) both; display: flex; flex-direction: column; gap: 14px">
+<div aria-hidden="true" style="width: 36px; height: 5px; margin: 0 auto; border-radius: 3px; background: {{t.line}}"></div>
+<div style="display: flex; align-items: center; justify-content: space-between">
+<span style="font-size: 17px; font-weight: 600">Apariencia</span>
+<button type="button" class="press" onClick="{{toggleSheet}}" style="height: 32px; padding: 0 4px; border: 0; background: transparent; color: {{t.acc}}; font: inherit; font-size: 17px; font-weight: 600; cursor: pointer">Listo</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{swatches}}" as="s" hint-placeholder-count="4">
+<button type="button" class="press" aria-pressed="{{s.on}}" onClick="{{s.pick}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: {{t.fg}}; font: inherit; cursor: pointer">
+<span style="width: 52px; height: 52px; border-radius: 26px; background: {{s.bg}}; color: {{s.fg}}; box-shadow: {{s.ring}}; display: flex; align-items: center; justify-content: center; font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 18px; font-weight: 600">Aa</span>
+<span style="font-size: 12px; color: {{s.labelColor}}; font-weight: {{s.weight}}">{{s.name}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 10px; background: {{t.fill}}; overflow: hidden">
+<button type="button" class="press" aria-label="Letra más pequeña" onClick="{{smaller}}" style="height: 44px; border: 0; border-right: 0.5px solid {{t.line}}; background: transparent; color: {{t.fg}}; font-family: ui-serif, 'New York', Charter, Cambria, Georgia, serif; font-size: 15px; cursor: pointer">A</button>
+<button type="button" class="press" aria-label="Letra más grande" onClick="{{bigger}}" style="height: 44px; border: 0; background: transparent; color: {{t.fg}}; font-family: ui-serif, 'New York', Charter, Cambria, Georgia, serif; font-size: 23px; cursor: pointer">A</button>
+</div>
+<div style="border-radius: 10px; background: {{t.fill}}; overflow: hidden">
+<sc-for list="{{fonts}}" as="f" hint-placeholder-count="2">
+<button type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 44px; padding: 0 14px; border: 0; border-bottom: {{f.sep}}; background: transparent; color: {{t.fg}}; font-family: {{f.family}}; font-size: 16px; cursor: pointer">{{f.label}}
+<sc-if value="{{f.on}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{t.acc}}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { theme: 'sepia', fs: 18, chrome: true, sheet: true, font: 'serif' };
+  }
+  renderVals() {
+    const themes = {
+      papel: { name: 'Papel', bg: '#FFFDF8', fg: '#2B2119', sub: '#6B5F55', acc: '#A8261B', bar: 'rgba(255,253,248,0.82)', pop: 'rgba(255,253,248,0.94)', line: 'rgba(43,33,25,0.14)', fill: 'rgba(118,96,72,0.1)', mark: '#F6E3C6' },
+      sepia: { name: 'Sepia', bg: '#F4ECDC', fg: '#3B2F22', sub: '#6B5A45', acc: '#A2400F', bar: 'rgba(244,236,220,0.84)', pop: 'rgba(250,245,234,0.95)', line: 'rgba(59,47,34,0.16)', fill: 'rgba(118,96,72,0.13)', mark: '#EBCB97' },
+      noche: { name: 'Noche', bg: '#1E1915', fg: '#E6DCCB', sub: '#A99C8B', acc: '#E8957A', bar: 'rgba(30,25,21,0.82)', pop: 'rgba(44,37,31,0.95)', line: 'rgba(230,220,203,0.16)', fill: 'rgba(230,220,203,0.1)', mark: '#5A3A1E' },
+      negro: { name: 'Negro', bg: '#000000', fg: '#D6CDBF', sub: '#9C9285', acc: '#E8957A', bar: 'rgba(0,0,0,0.8)', pop: 'rgba(28,24,20,0.95)', line: 'rgba(214,205,191,0.16)', fill: 'rgba(214,205,191,0.1)', mark: '#4A2E14' }
+    };
+    const s = this.state;
+    const t = themes[s.theme];
+    const serif = "ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif";
+    const sans = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif";
+    const fontDefs = [{ id: 'serif', label: 'Con serifa', family: serif }, { id: 'sans', label: 'Sin serifa', family: sans }];
+    const showBottom = s.chrome && !s.sheet;
+    return {
+      t,
+      fs: s.fs,
+      sheet: s.sheet,
+      family: s.font === 'serif' ? serif : sans,
+      chromeHidden: !s.chrome,
+      chromeO: s.chrome ? 1 : 0,
+      chromeTop: s.chrome ? 'none' : 'translateY(-8px)',
+      chromePE: s.chrome ? 'auto' : 'none',
+      bottomHidden: !showBottom,
+      bottomO: showBottom ? 1 : 0,
+      chromeBottom: showBottom ? 'none' : 'translateY(8px)',
+      aaBg: s.sheet ? t.fill : 'transparent',
+      toggleChrome: () => this.setState(s.sheet ? { sheet: false } : { chrome: !s.chrome }),
+      toggleSheet: () => this.setState({ sheet: !s.sheet, chrome: true }),
+      smaller: () => this.setState({ fs: Math.max(14, s.fs - 1) }),
+      bigger: () => this.setState({ fs: Math.min(24, s.fs + 1) }),
+      swatches: Object.keys(themes).map((k) => ({
+        name: themes[k].name, bg: themes[k].bg, fg: themes[k].fg, on: s.theme === k,
+        ring: s.theme === k ? '0 0 0 2px ' + t.pop + ', 0 0 0 4px ' + t.acc : '0 0 0 0.5px ' + t.line,
+        labelColor: s.theme === k ? t.fg : t.sub,
+        weight: s.theme === k ? 600 : 400,
+        pick: () => this.setState({ theme: k })
+      })),
+      fonts: fontDefs.map((f, i) => ({ ...f, on: s.font === f.id, sep: i === 0 ? '0.5px solid ' + t.line : '0', pick: () => this.setState({ font: f.id }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

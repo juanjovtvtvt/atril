@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Notas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F7F2EA}
+a{color:#A8261B}a:hover{color:#7E1D14}
+input::placeholder{color:#8A7B6E}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.panel{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s linear 360ms}
+.panel[data-open="true"]{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s}
+.act{opacity:.55;transition:opacity 160ms ease}
+@media (hover:hover) and (pointer:fine){
+.row:hover{background:rgba(118,96,72,.07)}
+.ghost:hover{background:rgba(118,96,72,.1)}
+.note:hover .act{opacity:1}
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;animation-delay:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 1000px; background: #F7F2EA; color: #2B2119; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; background: rgba(247,242,234,0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<a href="Main.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px 0 4px; border-radius: 8px; font-size: 15px; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>Inicio</a>
+<div style="display: flex; align-items: center; gap: 4px">
+<button type="button" class="press ghost" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #A8261B; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7.5 10.5 4.5 4.5 4.5-4.5"></path><path d="M5 20h14"></path></svg>Exportar</button>
+<button type="button" class="press ghost" aria-label="Mostrar secciones" aria-pressed="{{panel}}" onClick="{{togglePanel}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: {{panelBtnBg}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"></rect><path d="M15 4.5v15"></path><path d="M17.5 8.5h1M17.5 11h1" stroke-linecap="round"></path></svg>
+</button>
+</div>
+</header>
+
+<main style="max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 12px 32px 56px">
+<h1 style="margin: 12px 0 2px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em">Notas</h1>
+<div style="font-size: 15px; color: #6B5F55; font-variant-numeric: tabular-nums">14 subrayados y 5 notas en 4 libros</div>
+
+<div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+<nav aria-label="Libros con notas" style="flex: 1 1 250px; max-width: 100%; min-width: 0; position: sticky; top: 64px">
+<div role="search" style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; margin-bottom: 10px; border-radius: 9px; background: rgba(118,96,72,0.12)">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B5F55" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input type="search" aria-label="Buscar en tus notas" placeholder="Buscar en tus notas" style="flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14px; color: #2B2119">
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{sources}}" as="b" hint-placeholder-count="5">
+<button type="button" class="row press" aria-pressed="{{b.on}}" onClick="{{b.pick}}" style="display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 10px; background: {{b.bg}}; color: #2B2119; font: inherit; text-align: left; cursor: pointer">
+<sc-if value="{{b.isAll}}" hint-placeholder-val="{{false}}"><span style="width: 22px; height: 30px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #A8261B"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"></path><path d="M9 9h6M9 13h6M9 17h4"></path></svg></span></sc-if>
+<sc-if value="{{b.isBook}}" hint-placeholder-val="{{true}}"><span style="width: 22px; height: 32px; flex: 0 0 auto; border-radius: 2px 3px 3px 2px; background: {{b.cover}}; box-shadow: inset 2px 0 0 rgba(0,0,0,0.2), 0 1px 2px rgba(43,33,25,0.2)"></span></sc-if>
+<span style="flex: 1; min-width: 0; font-size: 14px; font-weight: {{b.weight}}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{b.title}}</span>
+<span style="font-size: 13px; color: #6B5F55; font-variant-numeric: tabular-nums">{{b.count}}</span>
+</button>
+</sc-for>
+</div>
+</nav>
+
+<section aria-labelledby="notas-titulo" style="flex: 999 1 520px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 0.5px solid rgba(43,33,25,0.14)">
+<div style="min-width: 0">
+<h2 id="notas-titulo" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">{{headTitle}}</h2>
+<div style="font-size: 13px; color: #6B5F55">{{headSub}}</div>
+</div>
+<div role="radiogroup" aria-label="Filtrar por color" style="display: flex; align-items: center; gap: 8px">
+<sc-for list="{{colors}}" as="c" hint-placeholder-count="4">
+<button type="button" role="radio" aria-checked="{{c.on}}" aria-label="{{c.name}}" onClick="{{c.pick}}" class="press" style="width: 26px; height: 26px; padding: 0; border: 0; border-radius: 13px; background: {{c.bg}}; box-shadow: {{c.ring}}; color: #6B5F55; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer">{{c.text}}</button>
+</sc-for>
+</div>
+</div>
+
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<div style="margin-top: 22px">
+<div style="font-size: 13px; font-weight: 600; color: #6B5F55; margin-bottom: 4px">{{g.label}}</div>
+<sc-for list="{{g.items}}" as="n" hint-placeholder-count="3">
+<article class="note" style="display: flex; gap: 14px; padding: 14px 0; border-bottom: 0.5px solid rgba(43,33,25,0.12); animation: rise 260ms cubic-bezier(.23,1,.32,1) {{n.delay}}ms both">
+<div style="flex: 1; min-width: 0">
+<p style="margin: 0; font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 18px; line-height: 1.55"><span style="background: {{n.mark}}; border-radius: 3px; padding: 1px 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone">{{n.text}}</span></p>
+<sc-if value="{{n.hasNote}}" hint-placeholder-val="{{false}}">
+<p style="margin: 8px 0 0; display: flex; gap: 6px; font-size: 14px; color: #4B3A2E"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8261B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 3px"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>{{n.note}}</p>
+</sc-if>
+<div style="margin-top: 6px; font-size: 12px; color: #6B5F55">{{n.where}} · {{n.date}}</div>
+</div>
+<div class="act" style="display: flex; flex-direction: column; gap: 2px">
+<button type="button" class="press ghost" aria-label="Copiar" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: #6B5F55; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M9 9h11v11H9z"></path><path d="M5 15H4V4h11v1"></path></svg></button>
+<a href="Ficha.dc.html#compartir" class="press ghost" aria-label="Compartir como tarjeta" style="width: 32px; height: 32px; border-radius: 8px; color: #6B5F55; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7.5 7.5 4.5-4.5 4.5 4.5"></path><path d="M6 11H5v10h14V11h-1"></path></svg></a>
+<a href="{{n.go}}" class="press ghost" aria-label="Ir a la página" style="width: 32px; height: 32px; border-radius: 8px; color: #6B5F55; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg></a>
+</div>
+</article>
+</sc-for>
+</div>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<div style="padding: 48px 0; text-align: center; color: #6B5F55">No hay subrayados de este color en este libro.</div>
+</sc-if>
+</section>
+</div>
+</main>
+
+<aside class="panel" data-open="{{panel}}" aria-label="Secciones" aria-hidden="{{panelHidden}}" style="position: fixed; top: 60px; right: 12px; bottom: 12px; z-index: 20; width: 280px; box-sizing: border-box; padding: 14px 10px; border-radius: 18px; background: rgba(252,248,241,0.8); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 20px 50px rgba(43,33,25,0.2); transform: {{panelT}}; visibility: {{panelV}}; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 0 10px 8px; font-size: 13px; font-weight: 600; color: #6B5F55">Secciones</div>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="3">
+<a href="{{s.href}}" class="row press" aria-current="{{s.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 10px; border-radius: 10px; background: {{s.bg}}; color: #2B2119; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{s.tint}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{s.icon}}"></path></svg>
+<span style="flex: 1; font-size: 15px; font-weight: 500">{{s.label}}</span>
+<span style="font-size: 13px; color: #6B5F55">{{s.count}}</span>
+</a>
+</sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { book: 'quijote', color: 'todos', panel: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const marks = { ocre: '#F6E3C6', oliva: '#E5E5CF', rosa: '#F4DCD5' };
+    const books = [
+      { id: 'quijote', title: 'Don Quijote de la Mancha', author: 'Miguel de Cervantes', cover: '#4B2716', go: 'Lector-PC.dc.html' },
+      { id: 'redes', title: 'Redes · Unidad 3', author: 'apuntes-redes-2026.pdf', cover: '#A8261B', go: 'Ficha.dc.html' },
+      { id: 'algo', title: 'Algoritmos · Parcial 2', author: 'algoritmos-parcial-2.pdf', cover: '#5C5A33', go: 'Ficha.dc.html' },
+      { id: 'esp', title: 'Guía ESP8266 + MAX30102', author: 'guia-esp8266-max30102.pdf', cover: '#B88A52', go: 'Ficha.dc.html' }
+    ];
+    const notes = [
+      { book: 'quijote', group: 'Capítulo I', text: 'de cuyo nombre no quiero acordarme', color: 'ocre', where: 'Página 11', date: '24 oct.', note: 'La frase con la que todo el mundo conoce el libro.' },
+      { book: 'quijote', group: 'Capítulo I', text: 'rocín flaco y galgo corredor', color: 'oliva', where: 'Página 11', date: '24 oct.' },
+      { book: 'quijote', group: 'Capítulo I', text: 'gran madrugador y amigo de la caza', color: 'ocre', where: 'Página 12', date: '25 oct.' },
+      { book: 'quijote', group: 'Capítulo I', text: 'del poco dormir y del mucho leer, se le secó el celebro', color: 'rosa', where: 'Página 14', date: '25 oct.', note: '«Celebro» va así, con l, en el original.' },
+      { book: 'redes', group: '3.2 Enrutamiento estático y dinámico', text: 'En el enrutamiento estático, el administrador escribe cada ruta a mano.', color: 'oliva', where: 'Página 14', date: '25 oct.', note: 'Seguro sale en el parcial.' },
+      { book: 'redes', group: '3.2 Enrutamiento estático y dinámico', text: 'Los routers intercambian información mediante protocolos como RIP, OSPF o EIGRP.', color: 'ocre', where: 'Página 14', date: '25 oct.' },
+      { book: 'redes', group: '3.3 OSPF', text: 'OSPF elige rutas según el costo de cada enlace, no por el número de saltos.', color: 'rosa', where: 'Página 17', date: '25 oct.' },
+      { book: 'redes', group: '3.4 Distancia administrativa', text: 'La distancia administrativa decide qué fuente de rutas se prefiere cuando hay varias.', color: 'ocre', where: 'Página 19', date: '25 oct.' },
+      { book: 'algo', group: 'Búsqueda', text: 'Búsqueda binaria: O(log n), pero solo si el arreglo ya está ordenado.', color: 'ocre', where: 'Página 3', date: '20 oct.', note: 'Repasar qué pasa con elementos repetidos.' },
+      { book: 'algo', group: 'Ordenamiento', text: 'Merge sort es estable; quicksort, en su versión típica, no.', color: 'oliva', where: 'Página 7', date: '20 oct.' },
+      { book: 'algo', group: 'Algoritmos voraces', text: 'Un algoritmo voraz no siempre da la solución óptima.', color: 'rosa', where: 'Página 12', date: '21 oct.' },
+      { book: 'esp', group: 'Conexión', text: 'El MAX30102 se comunica por I2C: SDA en D2 y SCL en D1.', color: 'oliva', where: 'Página 4', date: '18 oct.', note: 'Así me funcionó en la NodeMCU.' },
+      { book: 'esp', group: 'Lecturas', text: 'Las lecturas mejoran si el dedo no presiona demasiado el sensor.', color: 'ocre', where: 'Página 9', date: '18 oct.' },
+      { book: 'esp', group: 'Lecturas', text: 'Promediar varias muestras reduce el ruido de la señal de pulso.', color: 'rosa', where: 'Página 11', date: '19 oct.' }
+    ];
+    const countFor = (id) => notes.filter((n) => id === 'todos' || n.book === id).length;
+    const sources = [{ id: 'todos', title: 'Todas las notas', isAll: true }].concat(books.map((b) => ({ ...b, isBook: true }))).map((b) => ({
+      ...b, isAll: !!b.isAll, isBook: !!b.isBook,
+      count: countFor(b.id),
+      on: s.book === b.id,
+      bg: s.book === b.id ? 'rgba(118,96,72,0.14)' : 'transparent',
+      weight: s.book === b.id ? 600 : 400,
+      pick: () => this.setState({ book: b.id })
+    }));
+    const inBook = notes.filter((n) => s.book === 'todos' || n.book === s.book);
+    const filtered = inBook.filter((n) => s.color === 'todos' || n.color === s.color);
+    const groups = [];
+    filtered.forEach((n, i) => {
+      const b = books.find((x) => x.id === n.book);
+      const label = s.book === 'todos' ? b.title : n.group;
+      let g = groups.find((x) => x.label === label);
+      if (!g) { g = { label, items: [] }; groups.push(g); }
+      g.items.push({ ...n, mark: marks[n.color], hasNote: !!n.note, note: n.note || '', go: b.go, delay: i * 35 });
+    });
+    const current = books.find((b) => b.id === s.book);
+    const withNotes = inBook.filter((n) => n.note).length;
+    const colorDefs = [
+      { id: 'todos', name: 'Todos los colores', bg: 'rgba(118,96,72,0.12)', text: 'Todo' },
+      { id: 'ocre', name: 'Ocre', bg: marks.ocre, text: '' },
+      { id: 'oliva', name: 'Oliva', bg: marks.oliva, text: '' },
+      { id: 'rosa', name: 'Rosa', bg: marks.rosa, text: '' }
+    ];
+    return {
+      sources,
+      groups,
+      empty: filtered.length === 0,
+      headTitle: current ? current.title : 'Todas las notas',
+      headSub: inBook.length + ' subrayados · ' + withNotes + (withNotes === 1 ? ' nota' : ' notas') + (current ? ' · ' + current.author : ''),
+      colors: colorDefs.map((c) => ({
+        ...c, on: s.color === c.id,
+        ring: s.color === c.id ? '0 0 0 2px #F7F2EA, 0 0 0 3.5px #A8261B' : '0 0 0 0.5px rgba(43,33,25,0.25)',
+        pick: () => this.setState({ color: c.id })
+      })).map((c) => (c.id === 'todos' ? { ...c } : c)),
+      sections: [
+        { href: 'Biblioteca-PC.dc.html', label: 'Biblioteca', count: '12', tint: '#6E6B3E', icon: 'M3 20h18 M5 20V6h3v14 M9.5 20V4h3v16 M14 20l-1-13 3-.6 2 13.4', bg: 'transparent', current: 'false' },
+        { href: 'Convertidor.dc.html', label: 'Convertidor', count: '', tint: '#A8261B', icon: 'M4 8h13l-3-3 M20 16H7l3 3', bg: 'transparent', current: 'false' },
+        { href: 'Notas-PC.dc.html', label: 'Notas', count: '14', tint: '#C07A2C', icon: 'M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4', bg: 'rgba(118,96,72,0.12)', current: 'page' }
+      ],
+      panel: s.panel,
+      panelHidden: !s.panel,
+      panelT: s.panel ? 'none' : 'translateX(calc(100% + 24px))',
+      panelV: s.panel ? 'visible' : 'hidden',
+      panelBtnBg: s.panel ? 'rgba(118,96,72,0.14)' : 'transparent',
+      togglePanel: () => this.setState({ panel: !s.panel })
+    };
+  }
+}
+</script>
+</body>
+</html>

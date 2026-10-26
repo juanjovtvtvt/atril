@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Historial</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F7F2EA}
+a{color:#A8261B}a:hover{color:#7E1D14}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.bar{transition:background-color 160ms ease}
+.seg{transition:background-color 200ms ease, box-shadow 200ms ease}
+.panel{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s linear 360ms}
+.panel[data-open="true"]{transition:transform 360ms cubic-bezier(.32,.72,0,1), visibility 0s}
+@media (hover:hover) and (pointer:fine){
+.row:hover{background:rgba(118,96,72,.07)}
+.ghost:hover{background:rgba(118,96,72,.1)}
+}
+@keyframes ring{from{stroke-dashoffset:327}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
+@keyframes tip{from{opacity:0;transform:translate(-50%,4px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;animation-delay:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 1200px; background: #F7F2EA; color: #2B2119; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; background: rgba(247,242,234,0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<a href="Main.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px 0 4px; border-radius: 8px; font-size: 15px; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>Inicio</a>
+<button type="button" class="press ghost" aria-label="Mostrar secciones" aria-pressed="{{panel}}" onClick="{{togglePanel}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: {{panelBtnBg}}; color: #2B2119; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"></rect><path d="M15 4.5v15"></path><path d="M17.5 8.5h1M17.5 11h1" stroke-linecap="round"></path></svg>
+</button>
+</header>
+
+<main style="max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 12px 32px 56px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 12px 0 20px">
+<h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em">Historial</h1>
+<div role="group" aria-label="Periodo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; width: 270px; padding: 2px; border-radius: 9px; background: rgba(118,96,72,0.12)">
+<sc-for list="{{periods}}" as="p" hint-placeholder-count="3">
+<button type="button" class="seg" aria-pressed="{{p.on}}" onClick="{{p.pick}}" style="height: 30px; border: 0; border-radius: 7px; background: {{p.bg}}; box-shadow: {{p.shadow}}; color: #2B2119; font: inherit; font-size: 13px; font-weight: {{p.weight}}; cursor: pointer">{{p.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<section aria-label="Resumen" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1); overflow: hidden">
+<sc-for list="{{tiles}}" as="k" hint-placeholder-count="4">
+<div style="padding: 16px 18px; box-shadow: -0.5px 0 0 rgba(43,33,25,0.12)">
+<div style="font-size: 13px; color: #6B5F55">{{k.label}}</div>
+<div style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{k.value}}</div>
+<div style="font-size: 13px; color: #6B5F55">{{k.sub}}</div>
+</div>
+</sc-for>
+</section>
+
+<div style="margin-top: 32px; display: flex; flex-wrap: wrap; gap: 28px">
+<section aria-labelledby="dias-titulo" style="flex: 999 1 460px; min-width: 0">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px">
+<h2 id="dias-titulo" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Minutos por día</h2>
+<span style="font-size: 13px; color: #6B5F55">19 al 25 de octubre</span>
+</div>
+<div style="padding: 20px 18px 14px; border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1)">
+<div style="position: relative; height: 180px; display: flex; align-items: flex-end; gap: 14px; border-bottom: 0.5px solid rgba(43,33,25,0.25)">
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: {{avgY}}px; border-top: 1px dashed rgba(107,95,85,0.5)"></div>
+<span aria-hidden="true" style="position: absolute; right: 0; bottom: {{avgLabelY}}px; font-size: 11px; color: #6B5F55">promedio {{avg}} min</span>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+<div onMouseEnter="{{b.enter}}" onMouseLeave="{{b.leave}}" style="position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center">
+<sc-if value="{{b.tip}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; bottom: {{b.tipY}}px; left: 50%; z-index: 2; white-space: nowrap; padding: 5px 9px; border-radius: 8px; background: #2B2119; color: #F7F2EA; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; animation: tip 140ms cubic-bezier(.23,1,.32,1) both">{{b.full}} · {{b.v}} min</div>
+</sc-if>
+<div class="bar" style="width: 100%; max-width: 34px; height: {{b.h}}px; border-radius: 4px 4px 0 0; background: {{b.color}}; transform-origin: bottom; animation: grow 420ms cubic-bezier(.23,1,.32,1) {{b.delay}}ms both"></div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 14px; padding-top: 8px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+<div style="flex: 1; text-align: center; font-size: 12px; color: {{b.labelColor}}; font-weight: {{b.labelWeight}}">{{b.d}}</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="meta-titulo" style="flex: 1 1 260px; min-width: 0">
+<h2 id="meta-titulo" style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Meta 2026</h2>
+<div style="display: flex; align-items: center; gap: 18px; padding: 20px 18px; border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1)">
+<svg role="img" aria-label="7 de 12 libros" width="120" height="120" viewBox="0 0 120 120" style="flex: 0 0 auto">
+<circle cx="60" cy="60" r="52" fill="none" stroke="rgba(118,96,72,0.15)" stroke-width="12"></circle>
+<circle cx="60" cy="60" r="52" fill="none" stroke="#A8261B" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="136.1" transform="rotate(-90 60 60)" style="animation: ring 900ms cubic-bezier(.23,1,.32,1) 120ms both"></circle>
+<text x="60" y="58" text-anchor="middle" font-size="28" font-weight="700" fill="#2B2119" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">7</text>
+<text x="60" y="78" text-anchor="middle" font-size="12" fill="#6B5F55" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">de 12</text>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 17px; font-weight: 600">Vas un libro adelantado</span>
+<span style="font-size: 13px; color: #6B5F55">A tu ritmo terminas el 12.º a mediados de diciembre.</span>
+</div>
+</div>
+</section>
+</div>
+
+<section aria-labelledby="calendario-titulo" style="margin-top: 32px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px">
+<h2 id="calendario-titulo" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Días de lectura</h2>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #6B5F55">Menos
+<sc-for list="{{levels}}" as="lv" hint-placeholder-count="5"><span style="width: 11px; height: 11px; border-radius: 3px; background: {{lv}}"></span></sc-for>Más</span>
+</div>
+<div style="padding: 18px; border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1); overflow-x: auto">
+<div style="display: flex; gap: 3px; min-width: 560px">
+<sc-for list="{{weeks}}" as="w" hint-placeholder-count="26">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+<sc-for list="{{w.days}}" as="c" hint-placeholder-count="7">
+<div title="{{c.label}}" style="aspect-ratio: 1; border-radius: 3px; background: {{c.color}}"></div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+<div style="margin-top: 10px; font-size: 13px; color: #6B5F55">143 días con lectura en las últimas 26 semanas</div>
+</div>
+</section>
+
+<section aria-labelledby="sesiones-titulo" style="margin-top: 32px">
+<h2 id="sesiones-titulo" style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Sesiones</h2>
+<div style="border-radius: 12px; background: #FFFCF7; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1); overflow: hidden">
+<sc-for list="{{sessions}}" as="se" hint-placeholder-count="6">
+<sc-if value="{{se.isHeader}}" hint-placeholder-val="{{false}}">
+<div style="padding: 12px 16px 4px; font-size: 13px; font-weight: 600; color: #6B5F55; background: rgba(118,96,72,0.05)">{{se.label}}</div>
+</sc-if>
+<sc-if value="{{se.isRow}}" hint-placeholder-val="{{true}}">
+<a href="Ficha.dc.html" class="row" style="display: flex; align-items: center; gap: 12px; padding: 0 14px 0 16px; color: #2B2119; text-decoration: none">
+<span style="width: 28px; height: 42px; flex: 0 0 auto; border-radius: 2px 4px 4px 2px; background: {{se.bg}}; box-shadow: inset 3px 0 0 rgba(0,0,0,0.2), 0 1px 3px rgba(43,33,25,0.2)"></span>
+<span style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: {{se.sep}}">
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{se.title}}</span>
+<span style="font-size: 13px; color: #6B5F55">{{se.detail}}</span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end">
+<span style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums">{{se.mins}}</span>
+<span style="font-size: 13px; color: #6B5F55; font-variant-numeric: tabular-nums">{{se.time}}</span>
+</span>
+</span>
+</a>
+</sc-if>
+</sc-for>
+</div>
+</section>
+</main>
+
+<aside class="panel" data-open="{{panel}}" aria-label="Secciones" aria-hidden="{{panelHidden}}" style="position: fixed; top: 60px; right: 12px; bottom: 12px; z-index: 20; width: 280px; box-sizing: border-box; padding: 14px 10px; border-radius: 18px; background: rgba(252,248,241,0.8); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(43,33,25,0.12), 0 20px 50px rgba(43,33,25,0.2); transform: {{panelT}}; visibility: {{panelV}}; display: flex; flex-direction: column; gap: 2px">
+<div style="padding: 0 10px 8px; font-size: 13px; font-weight: 600; color: #6B5F55">Secciones</div>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="3">
+<a href="{{s.href}}" class="row press" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 10px; border-radius: 10px; color: #2B2119; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{s.tint}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{s.icon}}"></path></svg>
+<span style="flex: 1; font-size: 15px; font-weight: 500">{{s.label}}</span>
+<span style="font-size: 13px; color: #6B5F55">{{s.count}}</span>
+</a>
+</sc-for>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { period: 'semana', hover: null, panel: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const hair = '0.5px solid rgba(43,33,25,0.12)';
+    const periods = [{ id: 'semana', label: 'Semana' }, { id: 'mes', label: 'Mes' }, { id: 'anio', label: 'Año' }].map((p) => ({
+      ...p, on: s.period === p.id,
+      bg: s.period === p.id ? '#FFFCF7' : 'transparent',
+      shadow: s.period === p.id ? '0 1px 3px rgba(43,33,25,0.14), 0 0 0 0.5px rgba(43,33,25,0.06)' : 'none',
+      weight: s.period === p.id ? 600 : 500,
+      pick: () => this.setState({ period: p.id })
+    }));
+    const tileSets = {
+      semana: [
+        { label: 'Tiempo leído', value: '4 h 12 min', sub: '38 min más que la anterior' },
+        { label: 'Racha', value: '9 días', sub: 'La mejor fue de 14' },
+        { label: 'Páginas', value: '312', sub: 'En 11 sesiones' },
+        { label: 'Ritmo', value: '238 ppm', sub: 'Promedio general' }
+      ],
+      mes: [
+        { label: 'Tiempo leído', value: '17 h 40 min', sub: 'Octubre hasta hoy' },
+        { label: 'Días con lectura', value: '21 de 25', sub: 'Racha actual: 9' },
+        { label: 'Páginas', value: '1.284', sub: 'En 46 sesiones' },
+        { label: 'Terminados', value: '1', sub: 'María' }
+      ],
+      anio: [
+        { label: 'Tiempo leído', value: '162 h', sub: 'Desde el 1 de enero' },
+        { label: 'Días con lectura', value: '231', sub: 'La mejor racha fue de 14' },
+        { label: 'Páginas', value: '11.870', sub: 'Unas 40 por día' },
+        { label: 'Terminados', value: '7', sub: 'Meta: 12' }
+      ]
+    };
+    const days = [
+      { d: 'L', full: 'Lunes 19', v: 34 }, { d: 'M', full: 'Martes 20', v: 48 }, { d: 'X', full: 'Miércoles 21', v: 22 },
+      { d: 'J', full: 'Jueves 22', v: 61 }, { d: 'V', full: 'Viernes 23', v: 18 }, { d: 'S', full: 'Sábado 24', v: 45 },
+      { d: 'D', full: 'Hoy', v: 24 }
+    ];
+    const scale = 160 / 70;
+    const avg = Math.round(days.reduce((a, d) => a + d.v, 0) / days.length);
+    const bars = days.map((b, i) => {
+      const h = Math.round(b.v * scale);
+      const today = i === days.length - 1;
+      return {
+        ...b, h,
+        color: today ? '#A8261B' : (s.hover === i ? '#4B3A2E' : '#8C7B6D'),
+        tip: s.hover === i || (s.hover === null && today),
+        tipY: h + 8,
+        delay: i * 40,
+        labelColor: today ? '#2B2119' : '#6B5F55',
+        labelWeight: today ? 700 : 400,
+        enter: () => this.setState({ hover: i }),
+        leave: () => this.setState({ hover: null })
+      };
+    });
+    const levels = ['#EDE5D7', '#E8CFAE', '#D3A877', '#A86E3E', '#6B3A1C'];
+    const names = ['Sin lectura', 'Menos de 15 min', '15 a 30 min', '30 a 60 min', 'Más de 60 min'];
+    const weeks = [];
+    for (let w = 0; w < 26; w++) {
+      const col = [];
+      for (let d = 0; d < 7; d++) {
+        let lv = ((w * 7 + d) * 37 + w * 11) % 9;
+        lv = lv > 4 ? lv - 4 : lv;
+        if (w >= 24) lv = Math.max(1, lv);
+        col.push({ color: levels[lv], label: 'Semana ' + (w + 1) + ': ' + names[lv] });
+      }
+      weeks.push({ days: col });
+    }
+    const raw = [
+      { isHeader: true, label: 'Hoy' },
+      { isRow: true, title: 'Don Quijote de la Mancha', detail: 'Capítulo I · 9 páginas', mins: '24 min', time: '08:15', bg: '#4B2716' },
+      { isHeader: true, label: 'Ayer' },
+      { isRow: true, title: 'Don Quijote de la Mancha', detail: 'Capítulo I · 14 páginas', mins: '23 min', time: '21:40', bg: '#4B2716' },
+      { isRow: true, title: 'Redes · Unidad 3', detail: 'PDF convertido · 12 páginas', mins: '22 min', time: '15:05', bg: '#A8261B' },
+      { isHeader: true, label: 'Viernes 23' },
+      { isRow: true, title: 'El olvido que seremos', detail: '18 páginas', mins: '18 min', time: '22:30', bg: '#6E6B3E' }
+    ];
+    const sessions = raw.map((r, i) => ({ ...r, isHeader: !!r.isHeader, isRow: !!r.isRow, sep: (raw[i + 1] && raw[i + 1].isRow) ? hair : '0' }));
+    return {
+      periods,
+      tiles: tileSets[s.period],
+      bars,
+      avg,
+      avgY: Math.round(avg * scale),
+      avgLabelY: Math.round(avg * scale) + 4,
+      levels,
+      weeks,
+      sessions,
+      sections: [
+        { href: 'Biblioteca-PC.dc.html', label: 'Biblioteca', count: '12', tint: '#6E6B3E', icon: 'M3 20h18 M5 20V6h3v14 M9.5 20V4h3v16 M14 20l-1-13 3-.6 2 13.4' },
+        { href: 'Convertidor.dc.html', label: 'Convertidor', count: '', tint: '#A8261B', icon: 'M4 8h13l-3-3 M20 16H7l3 3' },
+        { href: 'Notas-PC.dc.html', label: 'Notas', count: '14', tint: '#C07A2C', icon: 'M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4' }
+      ],
+      panel: s.panel,
+      panelHidden: !s.panel,
+      panelT: s.panel ? 'none' : 'translateX(calc(100% + 24px))',
+      panelV: s.panel ? 'visible' : 'hidden',
+      panelBtnBg: s.panel ? 'rgba(118,96,72,0.14)' : 'transparent',
+      togglePanel: () => this.setState({ panel: !s.panel })
+    };
+  }
+}
+</script>
+</body>
+</html>

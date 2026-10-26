@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atril · Don Quijote de la Mancha</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F7F2EA}
+a{color:#A8261B}a:hover{color:#7E1D14}
+.press{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.press:active{transform:scale(.97)}
+.card{transition:background-color 240ms ease, color 240ms ease}
+@media (hover:hover) and (pointer:fine){
+.row:hover{background:rgba(118,96,72,.07)}
+.ghost:hover{background:rgba(118,96,72,.1)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:160ms!important;animation-delay:0s!important}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; min-height: 1240px; background: #F7F2EA; color: #2B2119; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+<header style="position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; background: rgba(247,242,234,0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%)">
+<a href="Main.dc.html" class="press ghost" style="display: inline-flex; align-items: center; gap: 2px; height: 34px; padding: 0 10px 0 4px; border-radius: 8px; font-size: 15px; text-decoration: none">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>Inicio</a>
+<div style="display: flex; gap: 4px">
+<a href="#compartir" class="press ghost" aria-label="Compartir" style="width: 36px; height: 34px; border-radius: 8px; color: #A8261B; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7.5 7.5 4.5-4.5 4.5 4.5"></path><path d="M6 11H5v10h14V11h-1"></path></svg></a>
+<button type="button" class="press ghost" aria-label="Marcador" aria-pressed="{{marked}}" onClick="{{toggleMark}}" style="width: 36px; height: 34px; border: 0; border-radius: 8px; background: transparent; color: #A8261B; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="{{markFill}}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6.5 3.5h11v17l-5.5-3.8-5.5 3.8z"></path></svg></button>
+</div>
+</header>
+
+<main style="max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 16px 32px 56px">
+
+<section aria-label="El libro" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 32px; animation: rise 320ms cubic-bezier(.23,1,.32,1) both">
+<div style="flex: 0 0 200px; height: 300px; position: relative; overflow: hidden; box-sizing: border-box; padding: 22px 18px 20px 28px; border-radius: 4px 8px 8px 4px; background: #4B2716; color: #F4E9D6; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px rgba(43,33,25,0.18), 0 24px 48px rgba(43,33,25,0.26)">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: rgba(0,0,0,0.24)"></span>
+<span aria-hidden="true" style="position: absolute; left: 10px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.12)"></span>
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.1">Don Quijote de la Mancha</span>
+<span style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8">Miguel de Cervantes</span>
+</div>
+
+<div style="flex: 999 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 4px">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6B5F55">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4"></path></svg>Convertido de PDF el 24 de octubre</span>
+<h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em">Don Quijote de la Mancha</h1>
+<span style="font-size: 20px; font-weight: 500; color: #A8261B; letter-spacing: -0.01em">Miguel de Cervantes</span>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px">
+<a href="Lector-PC.dc.html" class="press" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 22px; border-radius: 22px; background: #A8261B; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 600">Continuar<span style="opacity: 0.75; font-weight: 500; font-variant-numeric: tabular-nums">18 %</span></a>
+<a href="#compartir" class="press" style="display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 22px; background: rgba(168,38,27,0.1); color: #A8261B; text-decoration: none; font-size: 15px; font-weight: 600">Compartir</a>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 12px; max-width: 420px">
+<span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(118,96,72,0.18); overflow: hidden"><span style="display: block; width: 18%; height: 100%; border-radius: 2px; background: #A8261B"></span></span>
+<span style="font-size: 13px; color: #6B5F55">Capítulo I · quedan 9 min</span>
+</div>
+</div>
+</section>
+
+<div role="list" aria-label="Datos del archivo" style="margin-top: 32px; display: flex; overflow-x: auto; padding: 14px 0; border-top: 0.5px solid rgba(43,33,25,0.16); border-bottom: 0.5px solid rgba(43,33,25,0.16)">
+<sc-for list="{{facts}}" as="f" hint-placeholder-count="6">
+<div role="listitem" style="flex: 1 0 128px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 12px; border-left: {{f.sep}}; text-align: center">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #6B5F55">{{f.label}}</span>
+<span style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums">{{f.value}}</span>
+<span style="font-size: 12px; color: #6B5F55">{{f.caption}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top: 36px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px">
+<section aria-labelledby="lineas-titulo">
+<h2 id="lineas-titulo" style="margin: 0 0 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Primeras líneas</h2>
+<p style="margin: 0; font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 19px; line-height: 1.6">En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor.</p>
+<span style="display: block; margin-top: 8px; font-size: 13px; color: #6B5F55">Página 1 del archivo</span>
+</section>
+
+<section aria-labelledby="indice-titulo">
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px">
+<h2 id="indice-titulo" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Índice</h2>
+<span style="font-size: 13px; color: #6B5F55">52 capítulos</span>
+</div>
+<div style="border-radius: 12px; background: #FFFCF7; overflow: hidden; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1)">
+<sc-for list="{{toc}}" as="c" hint-placeholder-count="5">
+<a href="Lector-PC.dc.html" class="row" style="display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 12px 0 16px; color: #2B2119; text-decoration: none">
+<span style="width: 18px; font-size: 13px; color: #6B5F55; font-variant-numeric: tabular-nums">{{c.n}}</span>
+<span style="flex: 1; min-width: 0; padding: 12px 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-bottom: {{c.sep}}">{{c.title}}</span>
+<span style="font-size: 13px; color: {{c.stateColor}}; font-weight: {{c.stateWeight}}">{{c.state}}</span>
+<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B3A698" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+</a>
+</sc-for>
+</div>
+</section>
+</div>
+
+<section id="compartir" aria-labelledby="compartir-titulo" style="margin-top: 44px">
+<h2 id="compartir-titulo" style="margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Compartir una cita</h2>
+<p style="margin: 0 0 16px; font-size: 15px; color: #6B5F55">Elige uno de tus subrayados y el color de la tarjeta.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+<div style="flex: 0 0 272px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<div class="card" style="width: 272px; height: 340px; box-sizing: border-box; padding: 26px 24px 22px; border-radius: 18px; background: {{card.bg}}; color: {{card.fg}}; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(43,33,25,0.12), 0 18px 40px rgba(43,33,25,0.18)">
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 25px; font-weight: 500; line-height: 1.3">{{quote}}</span>
+<span style="margin-top: auto; font-size: 13px; line-height: 1.4"><strong style="font-weight: 600">Don Quijote de la Mancha</strong><br><span style="opacity: 0.75">Miguel de Cervantes</span></span>
+<span style="margin-top: 14px; padding-top: 10px; border-top: 0.5px solid {{card.rule}}; font-size: 11px; font-weight: 600; opacity: 0.7">Leído en Atril</span>
+</div>
+<div role="radiogroup" aria-label="Color de la tarjeta" style="display: flex; gap: 12px">
+<sc-for list="{{styles}}" as="st" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{st.on}}" aria-label="{{st.name}}" onClick="{{st.pick}}" class="press" style="width: 30px; height: 30px; padding: 0; border: 0; border-radius: 15px; background: {{st.bg}}; box-shadow: {{st.ring}}; cursor: pointer"></button>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 999 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div role="radiogroup" aria-label="Subrayado" style="border-radius: 12px; background: #FFFCF7; overflow: hidden; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1)">
+<sc-for list="{{highlights}}" as="h" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{h.on}}" onClick="{{h.pick}}" class="row" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 0 14px 0 16px; border: 0; background: transparent; color: #2B2119; font: inherit; text-align: left; cursor: pointer">
+<span style="flex: 1; min-width: 0; padding: 12px 0; border-bottom: {{h.sep}}">
+<span style="font-family: ui-serif, 'New York', 'Iowan Old Style', Charter, Cambria, Georgia, serif; font-size: 16px; line-height: 1.5; background: {{h.mark}}; border-radius: 3px; padding: 1px 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone">{{h.text}}</span>
+<span style="display: block; margin-top: 3px; font-size: 12px; color: #6B5F55">{{h.where}}</span>
+</span>
+<span style="width: 20px; display: flex; justify-content: center; color: #A8261B">
+<sc-if value="{{h.on}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div style="border-radius: 12px; background: #FFFCF7; overflow: hidden; box-shadow: 0 0 0 0.5px rgba(43,33,25,0.1)">
+<sc-for list="{{actions}}" as="a" hint-placeholder-count="5">
+<button type="button" class="row" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 0 14px 0 16px; border: 0; background: transparent; color: #2B2119; font: inherit; text-align: left; cursor: pointer">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A8261B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{a.icon}}"></path></svg>
+<span style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: {{a.sep}}">
+<span style="font-size: 15px">{{a.label}}</span>
+<span style="font-size: 13px; color: #6B5F55; white-space: nowrap">{{a.hint}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { style: 0, quote: 0, marked: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const hair = '0.5px solid rgba(43,33,25,0.14)';
+    const styleDefs = [
+      { name: 'Cuero', bg: '#4B2716', fg: '#F4E9D6', rule: 'rgba(244,233,214,0.3)' },
+      { name: 'Ocre', bg: '#F6E3C6', fg: '#3B2416', rule: 'rgba(59,36,22,0.25)' },
+      { name: 'Oliva', bg: '#E5E5CF', fg: '#2F2E16', rule: 'rgba(47,46,22,0.25)' }
+    ];
+    const hl = [
+      { text: 'gran madrugador y amigo de la caza', where: 'Capítulo I · página 12', mark: '#F6E3C6' },
+      { text: 'rocín flaco y galgo corredor', where: 'Capítulo I · página 11', mark: '#E5E5CF' },
+      { text: 'de cuyo nombre no quiero acordarme', where: 'Capítulo I · página 11 · con nota', mark: '#F4DCD5' }
+    ];
+    const facts = [
+      { label: 'Páginas', value: '1.024', caption: 'en el PDF' },
+      { label: 'Palabras', value: '381 mil', caption: 'aproximadas' },
+      { label: 'Capítulos', value: '52', caption: 'detectados' },
+      { label: 'Idioma', value: 'ES', caption: 'Español' },
+      { label: 'A tu ritmo', value: '30 h', caption: 'a 212 ppm' },
+      { label: 'Archivo', value: '8,4 MB', caption: 'EPUB' }
+    ];
+    const toc = [
+      { n: '1', title: 'Que trata de la condición y ejercicio del famoso hidalgo', state: 'Leyendo', current: true },
+      { n: '2', title: 'Que trata de la primera salida que de su tierra hizo el ingenioso don Quijote', state: '12 min' },
+      { n: '3', title: 'Donde se cuenta la graciosa manera que tuvo don Quijote en armarse caballero', state: '14 min' },
+      { n: '4', title: 'De lo que le sucedió a nuestro caballero cuando salió de la venta', state: '15 min' },
+      { n: '5', title: 'Donde se prosigue la narración de la desgracia de nuestro caballero', state: '11 min' }
+    ];
+    const actions = [
+      { label: 'Guardar imagen', hint: 'Para historias o TikTok', icon: 'M4 5h16v14H4z M8 15l3-3 3 3 2-2 4 4 M9 9.5h.01' },
+      { label: 'Copiar cita', hint: 'Con título y autor', icon: 'M9 9h11v11H9z M5 15H4V4h11v1' },
+      { label: 'Enviar el EPUB', hint: 'A otro dispositivo', icon: 'M12 3v12 M7.5 10.5 12 15l4.5-4.5 M5 20h14' },
+      { label: 'Exportar notas', hint: 'Markdown', icon: 'M6 3h9l3 3v15H6z M9 9h6 M9 13h6 M9 17h4' },
+      { label: 'Compartir progreso', hint: '18 % · racha de 9 días', icon: 'M4 20V10 M10 20V4 M16 20v-7 M21 20H3' }
+    ];
+    return {
+      facts: facts.map((f, i) => ({ ...f, sep: i === 0 ? '0' : hair })),
+      toc: toc.map((c, i) => ({ ...c, sep: i === toc.length - 1 ? '0' : hair, stateColor: c.current ? '#A8261B' : '#6B5F55', stateWeight: c.current ? 600 : 400 })),
+      card: styleDefs[s.style],
+      quote: hl[s.quote].text.charAt(0).toUpperCase() + hl[s.quote].text.slice(1) + '.',
+      styles: styleDefs.map((st, i) => ({
+        ...st, on: s.style === i,
+        ring: s.style === i ? '0 0 0 2px #F7F2EA, 0 0 0 4px #A8261B' : '0 0 0 0.5px rgba(43,33,25,0.25)',
+        pick: () => this.setState({ style: i })
+      })),
+      highlights: hl.map((h, i) => ({ ...h, on: s.quote === i, sep: i === hl.length - 1 ? '0' : hair, pick: () => this.setState({ quote: i }) })),
+      actions: actions.map((a, i) => ({ ...a, sep: i === actions.length - 1 ? '0' : hair })),
+      marked: s.marked,
+      markFill: s.marked ? 'currentColor' : 'none',
+      toggleMark: () => this.setState({ marked: !s.marked })
+    };
+  }
+}
+</script>
+</body>
+</html>

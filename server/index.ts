@@ -6,6 +6,18 @@ import { getPool, request, sql } from './db.ts';
 
 const app = express();
 app.disable('x-powered-by');
+
+// The Android app (Capacitor) is another origin: it needs CORS to talk to this API.
+app.use('/api', (req, res, next) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
 app.use('/api', express.json({ limit: '60mb' }));
 
 type Handler = (req: Request, res: Response) => Promise<unknown>;

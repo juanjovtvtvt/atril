@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from './Nav';
-import { useBooks, useHighlights } from '../api';
+import { serverUrl, setServerUrl, useBooks, useHighlights } from '../api';
 import { useEpubImport } from './AddBook';
 import { IconBack, IconBook, IconConvert, IconHome, IconLibrary, IconNotes, IconSidebar } from './Icons';
 import { useToast } from './Toast';
@@ -120,12 +120,54 @@ export function Shell({ back, actions, children }: { back?: { to: string; label:
   );
 }
 
+/** Connection error. Also lets you change the PC's address (in the Android app the IP may change). */
 export function ServerError({ error }: { error: Error }) {
+  const [url, setUrl] = useState(serverUrl() || 'http://192.168.0.103:3001');
+  const [state, setState] = useState<'idle' | 'testing' | 'failed'>('idle');
+
+  async function tryUrl() {
+    setState('testing');
+    try {
+      const res = await fetch(`${url.trim().replace(/\/+$/, '')}/api/health`);
+      if (!res.ok) throw new Error();
+      setServerUrl(url);
+      window.location.reload();
+    } catch {
+      setState('failed');
+    }
+  }
+
   return (
     <div className="empty" role="alert">
       <strong>No pude leer la base de datos</strong>
       <p>{error.message}</p>
-      <p className="small">Revisa que SQL Server (SQLEXPRESS) esté encendido y que la app esté corriendo con «npm run dev».</p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void tryUrl();
+        }}
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', width: '100%', maxWidth: 420, marginTop: 6 }}
+      >
+        <label className="visually-hidden" htmlFor="servidor">
+          Dirección del servidor
+        </label>
+        <input
+          id="servidor"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          inputMode="url"
+          placeholder="http://192.168.0.103:3001"
+          style={{ flex: '1 1 220px', height: 40, padding: '0 12px', border: 0, borderRadius: 10, background: 'var(--fill)', fontSize: 15 }}
+        />
+        <button type="submit" className="btn btn-tinted btn-small press" disabled={state === 'testing'}>
+          {state === 'testing' ? 'Probando…' : 'Conectar'}
+        </button>
+      </form>
+      <p className="small">
+        {state === 'failed'
+          ? 'Esa dirección no responde. En el PC corre «npm start» y revisa que el firewall de Windows permita el puerto 3001.'
+          : 'En el PC, la IP sale con «ipconfig» (Dirección IPv4). El puerto es 3001.'}
+      </p>
     </div>
   );
 }

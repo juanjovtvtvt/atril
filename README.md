@@ -32,6 +32,17 @@ npm run dev     # API en :3001 y la app en http://localhost:5173
 
 **Otra instancia o base:** define `ATRIL_DB` con la cadena de conexión ODBC completa antes de arrancar.
 
+## App Android (APK)
+
+El APK se hace con **Capacitor**, que mete esta misma app React en un proyecto Android nativo (`android/`). Se compila en Android Studio.
+
+1. Pon la IP de tu PC en `.env.android`. La sacas con `ipconfig`, en la línea "Dirección IPv4".
+2. Ejecuta `npm.cmd run android`: compila la web con esa dirección, la copia al proyecto Android y abre Android Studio.
+3. En Android Studio, cuando termine de sincronizar Gradle: **Build › Generate App Bundles or APKs › Generate APKs**. El APK queda en `android/app/build/outputs/apk/debug/app-debug.apk`.
+4. En el PC deja corriendo `npm.cmd start` (`npm.cmd run build` antes, si cambiaste algo).
+
+El celular tiene que estar en la misma Wi-Fi que el PC, y el firewall de Windows debe permitir el puerto 3001. Si cambia la IP del PC, la app muestra un campo para escribir la nueva dirección.
+
 ## La base de datos
 
 `database/atril.sql` crea:

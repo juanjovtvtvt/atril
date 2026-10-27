@@ -103,12 +103,41 @@ export type Settings = Record<string, unknown>;
 
 export class ApiError extends Error {}
 
+/*
+ * Server address. On the web it's the same origin (''); in the Android app it's the PC on your
+ * Wi-Fi, e.g. http://192.168.0.103:3001. The build sets it (VITE_API_URL) and the app can change
+ * it if the PC's IP changes.
+ */
+const SERVER_KEY = 'atril.servidor';
+
+export function serverUrl() {
+  let saved: string | null = null;
+  try {
+    saved = localStorage.getItem(SERVER_KEY);
+  } catch {
+    saved = null;
+  }
+  return (saved ?? import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
+}
+
+export function setServerUrl(url: string) {
+  try {
+    localStorage.setItem(SERVER_KEY, url.trim().replace(/\/+$/, ''));
+  } catch {
+    // Without storage the build's default address stays.
+  }
+}
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`/api${path}`, init);
+    res = await fetch(`${serverUrl()}/api${path}`, init);
   } catch {
-    throw new ApiError('No hay conexión con el servidor de Atril. ¿Está corriendo «npm run dev»?');
+    throw new ApiError(
+      serverUrl()
+        ? `No hay conexión con el servidor de Atril en ${serverUrl()}. Revisa que el PC esté encendido con «npm start» y en la misma Wi-Fi.`
+        : 'No hay conexión con el servidor de Atril. ¿Está corriendo «npm run dev»?',
+    );
   }
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -130,7 +159,7 @@ const binary = (blob: Blob): RequestInit => ({
   body: blob,
 });
 
-export const coverUrl = (id: string) => `/api/books/${id}/cover`;
+export const coverUrl = (id: string) => `${serverUrl()}/api/books/${id}/cover`;
 
 export const api = {
   health: () => http<{ ok: boolean; server: string; db: string }>('/health'),

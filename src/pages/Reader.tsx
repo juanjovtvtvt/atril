@@ -8,6 +8,7 @@ import { useToast } from '../components/Toast';
 import { highlightColors, highlightOrder } from '../lib/colors';
 import { spineSections, type EpubBook } from '../lib/epub';
 import { dayKey, formatNumber, uid } from '../lib/format';
+import { haptic, statusBar } from '../lib/native';
 
 type Rendition = ReturnType<EpubBook['renderTo']>;
 // epub.js's types say getContents() returns one item; it actually returns one per visible chapter.
@@ -147,6 +148,13 @@ export default function Reader() {
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
   const [error, setError] = useState<string | null>(null);
   const [chrome, setChrome] = useState(true);
+  const selectionAt = useRef(0);
+  const swipedAt = useRef(0);
+  const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
+  const selectionRef = useRef<{ cfi: string; text: string } | null>(null);
+  const clearIframeSelection = () => {
+    (rendition.current?.getContents() as unknown as { window: Window }[] | undefined)?.forEach((c) => c.window.getSelection()?.removeAllRanges());
+  };
   const [panel, setPanel] = useState<null | 'aa' | 'toc' | 'search'>(null);
   const [loc, setLoc] = useState({ progress: 0, page: 0, total: 0, index: 0, chapter: '', cfi: '' });
   const [wordsPerPage, setWordsPerPage] = useState(0);
@@ -160,6 +168,19 @@ export default function Reader() {
   const [results, setResults] = useState<{ cfi: string; excerpt: string }[] | null>(null);
 
   highlightsRef.current = highlights;
+  selectionRef.current = selection;
+
+  // Immersive reading on Android: the status bar hides with the controls and its icons follow the theme.
+  const darkTheme = themes[prefs.theme].dark;
+  useEffect(() => {
+    void statusBar({ visible: chrome, darkBackground: darkTheme });
+  }, [chrome, darkTheme]);
+  useEffect(
+    () => () => {
+      void statusBar({ visible: true, darkBackground: window.matchMedia('(prefers-color-scheme: dark)').matches });
+    },
+    [],
+  );
   const t = themes[prefs.theme];
   themeRef.current = t;
 
@@ -368,6 +389,7 @@ export default function Reader() {
       r.on('relocated', handleLocation);
 
       r.on('selected', (cfiRange: string) => {
+        selectionAt.current = Date.now();
         book.getRange(cfiRange).then((range) => {
           const text = range?.toString().replace(/\s+/g, ' ').trim();
           if (text) setSelection({ cfi: cfiRange, text });
@@ -375,11 +397,16 @@ export default function Reader() {
       });
 
       // Tapping the content: the side thirds turn the page, the center shows or hides the controls.
+      // While highlighting (adjusting the handles, picking a color) a tap only clears the
+      // selection: it never turns the page.
       r.on('click', (e: MouseEvent) => {
         markActivity();
         const win = e.view as Window | null;
         if (win && !win.getSelection()?.isCollapsed) return;
-        setSelection(null);
+        if (selectionRef.current || Date.now() - selectionAt.current < 700 || Date.now() - swipedAt.current < 400) {
+          setSelection(null);
+          return;
+        }
         const frame = win?.frameElement as HTMLElement | null;
         const box = viewer.current?.getBoundingClientRect();
         if (!frame || !box) return;
@@ -387,6 +414,27 @@ export default function Reader() {
         if (x < 0.25) go(-1);
         else if (x > 0.75) go(1);
         else setChrome((c) => !c);
+      });
+
+      // Swiping like turning a leaf: left = next page, right = previous one. Only clearly
+      // horizontal, quick gestures count, and never while there's a selection.
+      r.on('touchstart', (e: TouchEvent) => {
+        const t0 = e.changedTouches[0];
+        touchStart.current = t0 ? { x: t0.clientX, y: t0.clientY, t: Date.now() } : null;
+      });
+      r.on('touchend', (e: TouchEvent) => {
+        const s = touchStart.current;
+        const t1 = e.changedTouches[0];
+        touchStart.current = null;
+        if (!s || !t1 || selectionRef.current) return;
+        const win = (e.view ?? null) as Window | null;
+        if (win && !win.getSelection()?.isCollapsed) return;
+        const dx = t1.clientX - s.x;
+        const dy = t1.clientY - s.y;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4 && Date.now() - s.t < 700) {
+          swipedAt.current = Date.now();
+          go(dx < 0 ? 1 : -1);
+        }
       });
 
       r.on('keyup', (e: KeyboardEvent) => {
@@ -426,6 +474,12 @@ export default function Reader() {
 
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof Element && e.target.closest('input, textarea')) return;
+      // Escape (and Android's back gesture, which sends it) closes the selection first.
+      if (e.key === 'Escape' && selectionRef.current) {
+        setSelection(null);
+        clearIframeSelection();
+        return;
+      }
       if (e.key === 'ArrowLeft') go(-1);
       if (e.key === 'ArrowRight') go(1);
       markActivity();
@@ -478,6 +532,7 @@ export default function Reader() {
       await api.highlights.create(h);
       setHighlights((list) => [...list, h]);
       paint(h);
+      void haptic('light');
       setSelection(null);
       (rendition.current?.getContents() as unknown as { window: Window }[] | undefined)?.forEach((c) => c.window.getSelection()?.removeAllRanges());
       if (withNote) setEditing(h.id);
@@ -515,6 +570,7 @@ export default function Reader() {
       setBookmarks((list) => [...list, b]);
       await api.bookmarks.create(b);
       toast('Marcador guardado');
+      void haptic('medium');
     }
   }
 
@@ -715,7 +771,7 @@ export default function Reader() {
         {!meta && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: t.sub }}>Abriendo el libro…</div>}
       </div>
 
-      <footer style={{ ...barStyle, position: 'relative', padding: '10px 16px calc(12px + env(safe-area-inset-bottom))', textAlign: 'center', fontSize: 12, color: t.sub, opacity: chrome ? 1 : 0 }} className="num">
+      <footer style={{ ...barStyle, position: 'relative', padding: '10px 16px calc(12px + var(--safe-bottom))', textAlign: 'center', fontSize: 12, color: t.sub, opacity: chrome ? 1 : 0 }} className="num">
         {totalPages ? `Página ${formatNumber(currentPage)} de ${formatNumber(totalPages)} · ` : ''}
         {pct} %
         <span aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: t.line }}>
@@ -724,7 +780,10 @@ export default function Reader() {
       </footer>
 
       {selection && (
-        <div role="toolbar" aria-label="Texto seleccionado" className="popover" style={{ position: 'fixed', top: 'auto', left: '50%', bottom: 'calc(64px + env(safe-area-inset-bottom))', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 6, padding: 6, animation: 'rise 180ms var(--ease-out) both' }}>
+        // The container centers it; the bar's own animation can no longer move it sideways
+        // (before, the transform of "rise" overrode translateX(-50%) and it ended up off-screen).
+        <div style={{ position: 'fixed', left: 0, right: 0, bottom: 'calc(64px + var(--safe-bottom))', zIndex: 40, display: 'flex', justifyContent: 'center', padding: '0 12px', pointerEvents: 'none' }}>
+        <div role="toolbar" aria-label="Texto seleccionado" className="popover" onPointerDown={(e) => e.stopPropagation()} style={{ position: 'static', pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: 6, maxWidth: '100%', animation: 'rise 180ms var(--ease-out) both' }}>
           {highlightOrder.map((c) => (
             <button key={c} type="button" className="press" aria-label={`Subrayar en ${highlightColors[c].name.toLowerCase()}`} onClick={() => void addHighlight(c)} style={{ width: 32, height: 32, border: 0, borderRadius: 16, background: highlightColors[c].strong }} />
           ))}
@@ -746,6 +805,7 @@ export default function Reader() {
             <IconCopy size={16} />
             Copiar
           </button>
+        </div>
         </div>
       )}
 

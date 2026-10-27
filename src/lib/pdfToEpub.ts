@@ -5,18 +5,20 @@ pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
 /*
  * A PDF has no paragraphs: only text placed at coordinates. This module rebuilds the structure
- * with heuristics: lines from coordinates, drops text that repeats on every page (headers and
- * page numbers), joins lines into paragraphs, mends hyphenated words and uses font size to find
- * headings, which then split the chapters.
+ * with heuristics: lines from coordinates (splitting columns), drops text that repeats on every
+ * page (headers and page numbers), joins lines into paragraphs, mends hyphenated words and uses
+ * font size to find headings, which then split the chapters. Pages with no text (scanned) go
+ * through OCR (Tesseract).
  */
 
 export interface ConvertOptions {
   chapters: boolean;
   headers: boolean;
   hyphens: boolean;
+  ocr: boolean;
 }
 
-export type Step = 'extract' | 'paragraphs' | 'chapters' | 'build';
+export type Step = 'extract' | 'ocr' | 'paragraphs' | 'chapters' | 'build';
 
 export interface Block {
   kind: 'h1' | 'h2' | 'p';
@@ -38,6 +40,8 @@ export interface ConversionResult {
   headingCount: number;
   removedLines: number;
   mendedWords: number;
+  ocrPages: number;
+  twoColumnPages: number;
   quality: 'buena' | 'revisar' | 'baja';
   qualityNote: string;
   firstPageRaw: string[];
@@ -54,9 +58,32 @@ interface Line {
 }
 
 const nextFrame = () => new Promise((r) => setTimeout(r, 0));
-const endsSentence = (s: string) => /[.!?:»"”)]$/.test(s.trim());
-const startsLower = (s: string) => /^[a-záéíóúñü]/.test(s);
+const endsSentence = (s: string) => /[.!?:»"”)…]$/.test(s.trim());
+const startsLower = (s: string) => /^[a-záéíóúñüàèìòùç]/.test(s);
 const pageNumber = /^([-–—]\s*)?(\d{1,4}|[ivxlcdm]{1,7})(\s*[-–—])?$/i;
+/** End-of-line hyphens: normal, soft, non-breaking and Unicode hyphen. */
+const lineHyphen = /[a-záéíóúñü][-­‐‑]$/i;
+
+/* ---------- Cleaning up the text that comes out of the PDF ---------- */
+
+const ligatures: Record<string, string> = { 'ﬀ': 'ff', 'ﬁ': 'fi', 'ﬂ': 'fl', 'ﬃ': 'ffi', 'ﬄ': 'ffl', 'ﬅ': 'st', 'ﬆ': 'st', 'Ĳ': 'IJ', 'ĳ': 'ij' };
+const spacingAccents: Record<string, string> = { '´': '́', '`': '̀', '¨': '̈', '˜': '̃', '^': '̂' };
+
+export function cleanText(s: string) {
+  return (
+    s
+      .replace(/[ﬀﬁﬂﬃﬄﬅﬆĲĳ]/g, (c) => ligatures[c])
+      // An accent stored apart from its letter ("´e", "e´") → "é".
+      .replace(/([´`¨˜^])\s?([aeiouAEIOUnN])/g, (_, acc: string, l: string) => (l + spacingAccents[acc]).normalize('NFC'))
+      .replace(/([aeiouAEIOU])\s?([´`¨])/g, (_, l: string, acc: string) => (l + spacingAccents[acc]).normalize('NFC'))
+      .normalize('NFC')
+      .replace(/ /g, ' ')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/ ([,.;:!?)\]»”])/g, '$1')
+      .replace(/([(¿¡«“[]) /g, '$1')
+      .trim()
+  );
+}
 
 function median(values: number[]) {
   if (values.length === 0) return 0;
@@ -64,44 +91,156 @@ function median(values: number[]) {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
-async function extractLines(pdf: pdfjs.PDFDocumentProxy, onPage: (n: number) => void, signal?: AbortSignal) {
+/* ---------- Lines from coordinates ---------- */
+
+interface Item {
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  size: number;
+}
+
+/**
+ * Groups the fragments into lines. A large horizontal gap (a column's gutter) cuts the line
+ * even if it's at the same height: before, both columns got glued together in one line.
+ */
+function itemsToLines(items: Item[], page: number, pageHeight: number) {
+  const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
   const lines: Line[] = [];
+  let current: Line | null = null;
+  let lastRight = 0;
+  for (const it of sorted) {
+    const sameRow = current && Math.abs(it.y - current.y) <= it.size * 0.45;
+    const gap = it.x - lastRight;
+    if (!current || !sameRow || gap > it.size * 2.2) {
+      if (current) lines.push(current);
+      current = { text: it.text, x: it.x, right: it.x + it.width, y: it.y, size: it.size, page, pageHeight };
+    } else {
+      const needsSpace = gap > it.size * 0.18 && !current.text.endsWith(' ') && !it.text.startsWith(' ');
+      current.text += (needsSpace ? ' ' : '') + it.text;
+      current.right = Math.max(current.right, it.x + it.width);
+      current.size = Math.max(current.size, it.size);
+    }
+    lastRight = it.x + it.width;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+/**
+ * Reading order of a page. If there are two columns (many lines confined to each half and
+ * few spanning both), it reads: full-width headings at the top, the whole left column, the whole
+ * right column, and whatever full-width comes after.
+ */
+function readingOrder(lines: Line[], pageWidth: number) {
+  const mid = pageWidth / 2;
+  const left = lines.filter((l) => l.right < mid + pageWidth * 0.04 && l.x < mid - pageWidth * 0.05);
+  const right = lines.filter((l) => l.x > mid - pageWidth * 0.04);
+  const full = lines.filter((l) => !left.includes(l) && !right.includes(l));
+  const isTwoColumn = left.length >= 6 && right.length >= 6 && full.length <= (left.length + right.length) * 0.25;
+  if (!isTwoColumn) return { lines: [...lines].sort((a, b) => b.y - a.y || a.x - b.x), twoColumn: false };
+  const top = Math.max(...left.map((l) => l.y), ...right.map((l) => l.y));
+  const byY = (a: Line, b: Line) => b.y - a.y;
+  return {
+    lines: [...full.filter((l) => l.y > top).sort(byY), ...left.sort(byY), ...right.sort(byY), ...full.filter((l) => l.y <= top).sort(byY)],
+    twoColumn: true,
+  };
+}
+
+/* ---------- OCR for scanned pages ---------- */
+
+type OcrWorker = Awaited<ReturnType<typeof import('tesseract.js')['createWorker']>>;
+
+async function ocrPage(page: pdfjs.PDFPageProxy, worker: OcrWorker, pageNum: number, pageHeight: number): Promise<Line[]> {
+  // At 2.5x the text measures about 30 px tall: enough for Tesseract to be accurate.
+  const viewport = page.getViewport({ scale: 2.5 });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  const { data } = await worker.recognize(canvas);
+  canvas.width = canvas.height = 0;
+
+  // Turns the recognized text into lines with "coordinates": a blank line means a new paragraph.
+  const lines: Line[] = [];
+  let y = pageHeight - 40;
+  for (const raw of data.text.split('\n')) {
+    const text = raw.trim();
+    if (!text) {
+      y -= 12;
+      continue;
+    }
+    lines.push({ text, x: 50, right: 500, y, size: 10, page: pageNum, pageHeight });
+    y -= 13;
+  }
+  return lines;
+}
+
+/* ---------- Extraction ---------- */
+
+async function extractLines(
+  pdf: pdfjs.PDFDocumentProxy,
+  opts: ConvertOptions,
+  onProgress: (step: Step, n: number, total: number) => void,
+  signal?: AbortSignal,
+) {
+  const all: Line[] = [];
+  const empty: number[] = [];
+  let twoColumnPages = 0;
   for (let n = 1; n <= pdf.numPages; n++) {
     if (signal?.aborted) throw new DOMException('Cancelado', 'AbortError');
     const page = await pdf.getPage(n);
-    const { height } = page.getViewport({ scale: 1 });
+    const { width, height } = page.getViewport({ scale: 1 });
     const content = await page.getTextContent();
-    const items = content.items
+    const items: Item[] = content.items
       .filter((it): it is Extract<typeof it, { str: string }> => 'str' in it && it.str.trim().length > 0)
       .map((it) => {
         const [, , c, d, e, f] = it.transform as number[];
         return { text: it.str, x: e, y: f, width: it.width, size: Math.hypot(c, d) || it.height || 10 };
-      })
-      .sort((a, b) => b.y - a.y || a.x - b.x);
-
-    let current: Line | null = null;
-    let lastRight = 0;
-    for (const it of items) {
-      if (!current || Math.abs(it.y - current.y) > it.size * 0.45) {
-        if (current) lines.push(current);
-        current = { text: it.text, x: it.x, right: it.x + it.width, y: it.y, size: it.size, page: n, pageHeight: height };
-      } else {
-        const gap = it.x - lastRight;
-        const needsSpace = gap > it.size * 0.15 && !current.text.endsWith(' ') && !it.text.startsWith(' ');
-        current.text += (needsSpace ? ' ' : '') + it.text;
-        current.right = Math.max(current.right, it.x + it.width);
-        current.x = Math.min(current.x, it.x);
-        current.size = Math.max(current.size, it.size);
-      }
-      lastRight = it.x + it.width;
-    }
-    if (current) lines.push(current);
+      });
+    const lines = itemsToLines(items, n, height);
+    const chars = lines.reduce((s, l) => s + l.text.length, 0);
+    if (chars < 40) empty.push(n);
+    const ordered = readingOrder(lines, width);
+    if (ordered.twoColumn) twoColumnPages++;
+    all.push(...ordered.lines);
     page.cleanup();
-    onPage(n);
+    onProgress('extract', n, pdf.numPages);
     await nextFrame();
   }
-  for (const l of lines) l.text = l.text.replace(/\s+/g, ' ').trim();
-  return lines.filter((l) => l.text.length > 0);
+
+  // Pages without selectable text: OCR, if it's on.
+  let ocrPages = 0;
+  if (opts.ocr && empty.length > 0) {
+    onProgress('ocr', 0, empty.length);
+    const { createWorker } = await import('tesseract.js');
+    const worker = await createWorker(['spa', 'eng']);
+    try {
+      for (let i = 0; i < empty.length; i++) {
+        if (signal?.aborted) throw new DOMException('Cancelado', 'AbortError');
+        const n = empty[i];
+        const page = await pdf.getPage(n);
+        const ocrLines = await ocrPage(page, worker, n, page.getViewport({ scale: 1 }).height);
+        page.cleanup();
+        if (ocrLines.length) {
+          // Puts the recognized lines in that page's place, keeping the order.
+          const at = all.findIndex((l) => l.page > n);
+          all.splice(at === -1 ? all.length : at, 0, ...ocrLines);
+          ocrPages++;
+        }
+        onProgress('ocr', i + 1, empty.length);
+      }
+    } finally {
+      await worker.terminate();
+    }
+  }
+
+  for (const l of all) l.text = cleanText(l.text);
+  return { lines: all.filter((l) => l.text.length > 0), ocrPages, twoColumnPages, emptyPages: empty.length };
 }
 
 /** Lines in the top or bottom band that repeat across many pages are headers or footers. */
@@ -140,22 +279,24 @@ function bodySize(lines: Line[]) {
 
 function buildBlocks(lines: Line[], opts: ConvertOptions) {
   const body = bodySize(lines);
+  const isBody = (l: Line) => Math.abs(l.size - body) < 1;
   const gaps: number[] = [];
   for (let i = 1; i < lines.length; i++) {
     const a = lines[i - 1];
     const b = lines[i];
-    if (a.page === b.page && Math.abs(a.size - body) < 1 && Math.abs(b.size - body) < 1) gaps.push(a.y - b.y);
+    if (a.page === b.page && isBody(a) && isBody(b) && a.y > b.y) gaps.push(a.y - b.y);
   }
   const lineGap = median(gaps.filter((g) => g > 0)) || body * 1.3;
-  const leftMargin = median(lines.filter((l) => Math.abs(l.size - body) < 1).map((l) => l.x));
-  const rightEdge = median(lines.filter((l) => Math.abs(l.size - body) < 1).map((l) => l.right));
+  const bodyLines = lines.filter(isBody);
+  const leftMargin = median(bodyLines.map((l) => l.x));
+  const lineWidth = median(bodyLines.map((l) => l.right - l.x));
 
   const blocks: Block[] = [];
   let para = '';
   let prev: Line | null = null;
   let mended = 0;
   const flush = () => {
-    if (para.trim()) blocks.push({ kind: 'p', text: para.trim() });
+    if (para.trim()) blocks.push({ kind: 'p', text: cleanText(para) });
     para = '';
   };
 
@@ -166,7 +307,7 @@ function buildBlocks(lines: Line[], opts: ConvertOptions) {
       const kind = line.size >= body * 1.55 ? 'h1' : 'h2';
       const last = blocks[blocks.length - 1];
       // A heading split over two lines arrives as two consecutive heading lines.
-      if (prev && last && last.kind === kind && prev.page === line.page && prev.y - line.y < line.size * 1.8) {
+      if (prev && last && last.kind === kind && prev.page === line.page && prev.y - line.y < line.size * 1.8 && prev.y > line.y) {
         last.text += ' ' + line.text;
       } else {
         blocks.push({ kind, text: line.text });
@@ -178,18 +319,22 @@ function buildBlocks(lines: Line[], opts: ConvertOptions) {
     let startNew = !para;
     if (prev && para) {
       const pageBreak = prev.page !== line.page;
+      // In two columns the next column starts above: that jump isn't a new paragraph.
+      const columnJump = !pageBreak && line.y > prev.y;
       const gap = prev.y - line.y;
       const prevEnds = endsSentence(para);
-      if (pageBreak) startNew = prevEnds && !startsLower(line.text);
+      const prevShort = prev.right - prev.x < lineWidth * 0.75;
+      if (pageBreak || columnJump) startNew = prevEnds && !startsLower(line.text);
       else if (gap > lineGap * 1.45) startNew = true;
-      else if (prevEnds && line.x > leftMargin + body * 0.9) startNew = true;
-      else if (prevEnds && prev.right < rightEdge - body * 4) startNew = true;
+      else if (prevEnds && line.x > leftMargin + body * 0.9 && line.x - prev.x > body * 0.5) startNew = true;
+      else if (prevEnds && prevShort) startNew = true;
     }
 
     if (startNew) {
       flush();
       para = line.text;
-    } else if (opts.hyphens && /[a-záéíóúñü]-$/i.test(para) && startsLower(line.text)) {
+    } else if (opts.hyphens && lineHyphen.test(para) && startsLower(line.text)) {
+      // "sufi-" + "ciente" → "suficiente". Only if the next one starts lowercase: "Norte-" + "Sur" stays.
       para = para.slice(0, -1) + line.text;
       mended++;
     } else {
@@ -260,7 +405,7 @@ export async function convertPdf(
     const info = (meta?.info ?? {}) as { Title?: string; Author?: string };
 
     onProgress('extract', 0, pageCount);
-    const raw = await extractLines(pdf, (n) => onProgress('extract', n, pageCount), signal);
+    const { lines: raw, ocrPages, twoColumnPages, emptyPages } = await extractLines(pdf, opts, onProgress, signal);
     const firstPageRaw = raw.filter((l) => l.page === 1).slice(0, 14).map((l) => l.text);
     const totalChars = raw.reduce((n, l) => n + l.text.length, 0);
 
@@ -276,20 +421,27 @@ export async function convertPdf(
 
     const goodTitle = info.Title && info.Title.trim().length > 2 && !/^(untitled|sin t[ií]tulo)|\.(docx?|pdf|pptx?)$/i.test(info.Title.trim());
     const firstHeading = blocks.find((b) => b.kind === 'h1')?.text;
-    const title = goodTitle ? info.Title!.trim() : firstHeading ?? fileName.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
-    const author = info.Author?.trim() || 'Autor desconocido';
+    const title = goodTitle ? cleanText(info.Title!) : firstHeading ?? fileName.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
+    const author = info.Author?.trim() ? cleanText(info.Author) : 'Autor desconocido';
     const headingCount = blocks.filter((b) => b.kind !== 'p').length;
     const avgChars = totalChars / Math.max(1, pageCount);
 
     let quality: ConversionResult['quality'] = 'buena';
     let qualityNote = 'Texto corrido, se ve bien.';
-    if (avgChars < 120) {
+    if (emptyPages > 0 && !opts.ocr) {
       quality = 'baja';
-      qualityNote = 'Casi no tiene texto seleccionable: parece escaneado. Haría falta reconocimiento de texto (OCR).';
+      qualityNote = `${emptyPages} ${emptyPages === 1 ? 'página no tiene' : 'páginas no tienen'} texto seleccionable (escaneadas). Activa el reconocimiento de texto (OCR).`;
+    } else if (ocrPages > 0) {
+      quality = 'revisar';
+      qualityNote = `Reconocí ${ocrPages} ${ocrPages === 1 ? 'página escaneada' : 'páginas escaneadas'} con OCR: revisa nombres y números.`;
+    } else if (avgChars < 120) {
+      quality = 'baja';
+      qualityNote = 'Casi no tiene texto seleccionable.';
     } else if (headingCount === 0 && pageCount > 10) {
       quality = 'revisar';
       qualityNote = 'No encontré títulos, así que el índice va por partes.';
     }
+    if (twoColumnPages > 0) qualityNote += ` Ordené ${twoColumnPages} ${twoColumnPages === 1 ? 'página' : 'páginas'} a dos columnas.`;
 
     return {
       title,
@@ -301,6 +453,8 @@ export async function convertPdf(
       headingCount,
       removedLines: removed,
       mendedWords: mended,
+      ocrPages,
+      twoColumnPages,
       quality,
       qualityNote,
       firstPageRaw,

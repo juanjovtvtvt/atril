@@ -1,4 +1,9 @@
 :root {
+  /* Android (Capacitor) injects --safe-area-inset-*: WebView reports env() as 0 there. */
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   --bg: #f7f2ea;
   --surface: #fffcf7;
   --surface-2: #fcf8f1;
@@ -149,13 +154,14 @@ textarea::placeholder {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 52px;
+  height: calc(52px + var(--safe-top));
+  padding-left: max(12px, var(--safe-left));
+  padding-right: max(12px, var(--safe-right));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 0 12px;
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--safe-top);
   background: var(--bar);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -696,7 +702,7 @@ button:disabled {
 /* ---------- Side panel (desktop) ---------- */
 .side-panel {
   position: fixed;
-  top: calc(60px + env(safe-area-inset-top));
+  top: calc(60px + var(--safe-top));
   right: 12px;
   bottom: 12px;
   z-index: 20;
@@ -746,7 +752,7 @@ button:disabled {
 .toast-host {
   position: fixed;
   left: 50%;
-  bottom: calc(24px + env(safe-area-inset-bottom));
+  bottom: calc(24px + var(--safe-bottom));
   z-index: 80;
   transform: translateX(-50%);
   display: flex;
@@ -992,7 +998,7 @@ button:disabled {
 /* ---------- Phone ---------- */
 @media (max-width: 759px) {
   .page {
-    padding: 8px 16px calc(100px + env(safe-area-inset-bottom));
+    padding: 8px 16px calc(100px + var(--safe-bottom));
   }
   .large-title {
     font-size: 30px;
@@ -1011,7 +1017,7 @@ button:disabled {
     z-index: 40;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    padding: 6px 4px calc(6px + var(--safe-bottom));
     background: var(--bar);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -1038,7 +1044,7 @@ button:disabled {
     width: 100%;
     max-height: 88vh;
     border-radius: 14px 14px 0 0;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    padding-bottom: calc(24px + var(--safe-bottom));
     animation: sheet-up 420ms var(--ease-drawer) both;
   }
   .overlay.sheetable .grabber {
@@ -1057,7 +1063,7 @@ button:disabled {
     font-size: 22px;
   }
   .toast-host {
-    bottom: calc(96px + env(safe-area-inset-bottom));
+    bottom: calc(96px + var(--safe-bottom));
   }
 }
 

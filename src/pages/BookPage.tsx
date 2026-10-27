@@ -9,6 +9,7 @@ import { useToast } from '../components/Toast';
 import { highlightColors } from '../lib/colors';
 import { formatBytes, formatHours, formatNumber, languageName, relativeDay, slug } from '../lib/format';
 import { cardStyles, exportNotes, renderQuoteCard, shareOrDownload, type CardStyle } from '../lib/share';
+import { shareText } from '../lib/native';
 import { averagePace, paceByBook } from '../lib/stats';
 
 export default function BookPage() {
@@ -70,11 +71,7 @@ export default function BookPage() {
   async function shareProgress() {
     if (!b) return;
     const text = `Voy en el ${pct} % de «${b.title}», de ${b.author}.`;
-    if (navigator.share) await navigator.share({ text }).catch(() => undefined);
-    else {
-      await navigator.clipboard.writeText(text);
-      toast('Copiado para compartir');
-    }
+    if (!(await shareText(text, b.title))) toast('Copiado para compartir');
   }
 
   async function toggleFinished() {
@@ -105,7 +102,7 @@ export default function BookPage() {
     { label: 'Guardar imagen', hint: 'Para historias o TikTok', Icon: IconImage, run: shareImage, disabled: !quote },
     { label: 'Copiar cita', hint: 'Con título y autor', Icon: IconCopy, run: copyQuote, disabled: !quote },
     { label: 'Enviar el EPUB', hint: 'A otro dispositivo', Icon: IconDownload, run: sendEpub, disabled: false },
-    { label: 'Exportar notas', hint: hl.length ? 'Markdown' : 'Sin subrayados todavía', Icon: IconNotes, run: async () => exportNotes(b, hl), disabled: hl.length === 0 },
+    { label: 'Exportar notas', hint: hl.length ? 'Markdown' : 'Sin subrayados todavía', Icon: IconNotes, run: async () => void (await exportNotes(b, hl)), disabled: hl.length === 0 },
     { label: 'Compartir progreso', hint: `${pct} %`, Icon: IconChart, run: shareProgress, disabled: false },
   ];
 

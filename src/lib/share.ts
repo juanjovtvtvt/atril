@@ -1,5 +1,6 @@
 import type { Book, Highlight } from '../api';
-import { download, slug } from './format';
+import { slug } from './format';
+import { shareFile } from './native';
 
 export type CardStyle = 'cuero' | 'ocre' | 'oliva';
 
@@ -71,20 +72,8 @@ export async function renderQuoteCard(quote: string, book: Pick<Book, 'title' | 
   return new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('No se pudo crear la imagen'))), 'image/png'));
 }
 
-/** Uses the system share sheet when there is one (phone); otherwise downloads the file. */
-export async function shareOrDownload(blob: Blob, fileName: string, title: string) {
-  const file = new File([blob], fileName, { type: blob.type });
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title });
-      return 'shared';
-    } catch (e) {
-      if ((e as DOMException).name === 'AbortError') return 'cancelled';
-    }
-  }
-  download(blob, fileName);
-  return 'downloaded';
-}
+/** System share menu (native on Android); on the web, download if there's no menu. */
+export const shareOrDownload = shareFile;
 
 export function notesMarkdown(book: Pick<Book, 'title' | 'author'>, highlights: Highlight[]) {
   const lines = [`# ${book.title}`, `*${book.author}*`, ''];
@@ -101,5 +90,5 @@ export function notesMarkdown(book: Pick<Book, 'title' | 'author'>, highlights: 
 }
 
 export function exportNotes(book: Pick<Book, 'title' | 'author'>, highlights: Highlight[]) {
-  download(new Blob([notesMarkdown(book, highlights)], { type: 'text/markdown' }), `notas-${slug(book.title)}.md`);
+  return shareFile(new Blob([notesMarkdown(book, highlights)], { type: 'text/markdown' }), `notas-${slug(book.title)}.md`, `Notas de ${book.title}`);
 }

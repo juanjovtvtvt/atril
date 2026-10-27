@@ -6,11 +6,13 @@ import { ServerError, Shell } from '../components/Shell';
 import { useToast } from '../components/Toast';
 import { buildEpub } from '../lib/buildEpub';
 import { importEpub } from '../lib/epub';
-import { download, formatBytes, formatNumber, relativeDay, slug } from '../lib/format';
+import { formatBytes, formatNumber, relativeDay, slug } from '../lib/format';
+import { shareFile } from '../lib/native';
 import { convertPdf, type ConversionResult, type ConvertOptions, type Step } from '../lib/pdfToEpub';
 
 const stepLabels: { id: Step | 'save'; label: string }[] = [
   { id: 'extract', label: 'Extraer texto' },
+  { id: 'ocr', label: 'Reconocer páginas escaneadas' },
   { id: 'paragraphs', label: 'Armar párrafos' },
   { id: 'chapters', label: 'Detectar capítulos' },
   { id: 'build', label: 'Generar EPUB' },
@@ -20,6 +22,7 @@ const optionLabels: { id: keyof ConvertOptions; label: string }[] = [
   { id: 'chapters', label: 'Detectar capítulos' },
   { id: 'headers', label: 'Quitar encabezados y números de página' },
   { id: 'hyphens', label: 'Unir palabras cortadas' },
+  { id: 'ocr', label: 'Reconocer texto escaneado (OCR)' },
 ];
 
 type Phase = { step: Step; done: number; total: number } | null;
@@ -55,7 +58,7 @@ export default function Converter() {
   const abort = useRef<AbortController | null>(null);
 
   const [file, setFile] = useState<File | null>((location.state as { file?: File } | null)?.file ?? null);
-  const [options, setOptions] = useState<ConvertOptions>({ chapters: true, headers: true, hyphens: true });
+  const [options, setOptions] = useState<ConvertOptions>({ chapters: true, headers: true, hyphens: true, ocr: true });
   const [usedOptions, setUsedOptions] = useState<ConvertOptions | null>(null);
   const [phase, setPhase] = useState<Phase>(null);
   const [result, setResult] = useState<ConversionResult | null>(null);
@@ -93,7 +96,7 @@ export default function Converter() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
-  const order: (Step | 'save')[] = ['extract', 'paragraphs', 'chapters', 'build'];
+  const order: (Step | 'save')[] = ['extract', 'ocr', 'paragraphs', 'chapters', 'build'];
   const stateOf = (id: Step | 'save') => {
     if (result) return 'done';
     if (!phase) return 'pending';
@@ -184,6 +187,8 @@ export default function Converter() {
                 const st = stateOf(id);
                 const meta =
                   id === 'extract' && phase?.step === 'extract' ? `página ${phase.done} de ${phase.total}` :
+                  id === 'ocr' && phase?.step === 'ocr' ? (phase.done === 0 ? 'cargando idiomas…' : `página ${phase.done} de ${phase.total}`) :
+                  id === 'ocr' && result ? (result.ocrPages ? `${result.ocrPages} páginas` : 'no hizo falta') :
                   id === 'extract' && result ? `${result.pageCount} páginas` :
                   id === 'paragraphs' && result ? `${formatNumber(result.paragraphCount)} párrafos` :
                   id === 'chapters' && result ? `${result.chapters.length} ${result.chapters.length === 1 ? 'capítulo' : 'capítulos'}` :
@@ -225,7 +230,7 @@ export default function Converter() {
                 Volver a convertir con estas opciones
               </button>
             ) : (
-              <p className="group-foot">Los PDF escaneados (imágenes) necesitan reconocimiento de texto, que todavía no está.</p>
+              <p className="group-foot">El OCR solo actúa en páginas sin texto seleccionable. La primera vez descarga los datos de español e inglés (necesita internet).</p>
             )}
           </section>
         </div>
@@ -275,7 +280,7 @@ export default function Converter() {
               </figure>
             </div>
             <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 10 }}>
-              <button type="button" className="btn btn-tinted press" onClick={() => download(epub, `${slug(result.title)}.epub`)}>
+              <button type="button" className="btn btn-tinted press" onClick={() => void shareFile(epub, `${slug(result.title)}.epub`, result.title)}>
                 Guardar .epub
               </button>
               <button type="button" className="btn btn-filled press" disabled={saving} onClick={() => void addToLibrary()}>

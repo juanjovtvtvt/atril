@@ -45,7 +45,7 @@ export default function Notes() {
           type="button"
           className="btn-ghost strong press"
           disabled={inBook.length === 0}
-          onClick={() => exportNotes(current ?? { title: 'Todas mis notas', author: 'Atril' }, inBook)}
+          onClick={() => void exportNotes(current ?? { title: 'Todas mis notas', author: 'Atril' }, inBook)}
         >
           <IconDownload size={16} />
           Exportar
